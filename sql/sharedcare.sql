@@ -6,75 +6,79 @@ use sharedcare;
 
 -- Tabla de ciudades donde residen los usuarios y donde se realizan las ofertas
 drop table if exists city;
-create table city(
-city_id smallint unsigned not null auto_increment,
-city_name varchar(50) not null unique,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key (city_id) 
+CREATE TABLE city (
+    city_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    city_name VARCHAR(50) NOT NULL UNIQUE,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (city_id)
 );
 
 -- Tabla de categorías (necesidades de los usuarios)
 -- Artributo statusx = atributo de estado de cada categoría: 0 - desctivada, 1 - activa
 drop table if exists category;
-create table category(
-category_id tinyint unsigned not null auto_increment,
-category_name varchar(50) unique not null,
-category_description varchar(255) default "",
-statusx tinyint unsigned not null default 1,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key(category_id)
+CREATE TABLE category (
+    category_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    category_name VARCHAR(50) UNIQUE NOT NULL,
+    category_description VARCHAR(255) DEFAULT '',
+    statusx TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (category_id)
 );
 
 -- Tabla de horarios
 drop table if exists availability;
-create table availability(
-availability_id tinyint unsigned not null auto_increment,
-av_name varchar(50) not null,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key(availability_id)
+CREATE TABLE availability (
+    availability_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    av_name VARCHAR(50) NOT NULL,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (availability_id)
 );
 
 -- Tabla de usuarios ya sean clientes o proveedores
 -- Atributo statusx = estado del usuario: -1 - baja, 0 - bloqueado, 1 - activo 
 -- Atributo kind = tipo d usuario: 1 - cliente, 2 - proveedor, 3 - administrador
 drop table if exists user;
-create table user(
-user_id smallint unsigned not null auto_increment,
-user_name varchar(50) not null,
-last_name varchar(50) not null,
-birth_date date not null,
-gender enum('Female','Male'),
-city_id smallint unsigned not null,
-email varchar(255) not null,
-pass varchar(255),
-statusx tinyint not null default 1,
-kind tinyint unsigned not null,
-image varchar(255) default null,
-phone varchar(15) not null,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key (user_id),
-constraint FK_user_city foreign key (city_id) references city(city_id) on delete restrict on update cascade
+CREATE TABLE user (
+    user_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    birth_date DATE NOT NULL,
+    gender ENUM('Female', 'Male'),
+    city_id SMALLINT UNSIGNED NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    pass VARCHAR(255),
+    statusx TINYINT NOT NULL DEFAULT 1,
+    kind TINYINT UNSIGNED NOT NULL,
+    image VARCHAR(255) DEFAULT NULL,
+    phone VARCHAR(15) NOT NULL,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id),
+    CONSTRAINT FK_user_city FOREIGN KEY (city_id)
+        REFERENCES city (city_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 --  Tabla de proveedores con los atributos específicos de esta entidad
 drop table if exists provider;
-create table provider(
-provider_id smallint unsigned not null auto_increment,
-user_id smallint unsigned unique not null,
-xp_years date not null,
-rating_count int unsigned not null default 0,
-score_total int unsigned not null default 0,
-score_avg decimal(7,1) not null default 0,	
-biography text default null,
-speciality varchar(255) not null,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key (provider_id),
-constraint FK_provider_user foreign key(user_id) references user(user_id) on delete cascade on update cascade
+CREATE TABLE provider (
+    provider_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id SMALLINT UNSIGNED UNIQUE NOT NULL,
+    xp_years DATE NOT NULL,
+    rating_count INT UNSIGNED NOT NULL DEFAULT 0,
+    score_total INT UNSIGNED NOT NULL DEFAULT 0,
+    score_avg DECIMAL(7 , 1 ) NOT NULL DEFAULT 0,
+    biography TEXT DEFAULT NULL,
+    speciality VARCHAR(255) NOT NULL,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (provider_id),
+    CONSTRAINT FK_provider_user FOREIGN KEY (user_id)
+        REFERENCES user (user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Tabla de ofertas de proveedor
@@ -83,77 +87,109 @@ constraint FK_provider_user foreign key(user_id) references user(user_id) on del
 -- Atributo actived = indica si la oferta ha llegado al número mínimo de consultas y está activada, se utiliza para agilizar las consultas
 -- Atributo price = precio mensual por usuario para el número mínimo de participantes
 drop table if exists offer;
-create table offer(
-offer_id int unsigned not null auto_increment,
-provider_id smallint unsigned not null,
-city_id smallint unsigned not null,
-title varchar(255) not null,
-offer_text text not null,
-icon varchar(255) not null default "",
-statusx tinyint not null default 1,
-actived boolean not null default 0,
-customer_min tinyint unsigned not null check (customer_min > 0),
-price decimal(6,2) not null default 0,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-constraint PK_offer primary key (offer_id),
-constraint FK_offer_provider foreign key (provider_id) references provider(provider_id) on delete restrict on update cascade,
-constraint FK_offer_city foreign key (city_id) references city(city_id) on delete restrict on update cascade
+CREATE TABLE offer (
+    offer_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    provider_id SMALLINT UNSIGNED NOT NULL,
+    city_id SMALLINT UNSIGNED NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    offer_text TEXT NOT NULL,
+    icon VARCHAR(255) NOT NULL DEFAULT '',
+    statusx TINYINT NOT NULL DEFAULT 1,
+    actived BOOLEAN NOT NULL DEFAULT 0,
+    customer_min TINYINT UNSIGNED NOT NULL CHECK (customer_min > 0),
+    price DECIMAL(6 , 2 ) NOT NULL DEFAULT 0,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (offer_id),
+    CONSTRAINT FK_offer_provider FOREIGN KEY (provider_id)
+        REFERENCES provider (provider_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT FK_offer_city FOREIGN KEY (city_id)
+        REFERENCES city (city_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Tabla de valoraciones y comentarios sobre los proveedores
 drop table if exists rating;
-create table rating(
-user_id smallint unsigned not null,
-provider_id smallint unsigned not null,
-score tinyint unsigned not null default 0,
-review text,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key(user_id, provider_id),
-constraint FK_rating_user foreign key (user_id) references user(user_id) on delete cascade on update cascade,
-constraint FK_rating_provider foreign key (provider_id) references provider(provider_id) on delete restrict on update cascade
+CREATE TABLE rating (
+    user_id SMALLINT UNSIGNED NOT NULL,
+    provider_id SMALLINT UNSIGNED NOT NULL,
+    score TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    review TEXT,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id , provider_id),
+    CONSTRAINT FK_rating_user FOREIGN KEY (user_id)
+        REFERENCES user (user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_rating_provider FOREIGN KEY (provider_id)
+        REFERENCES provider (provider_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Tabla de relaciones entre usuarios y ofertas (reservas)
 -- Atributo statusx = estado de la reserva: 0 - anulada, 1 - activada
 drop table if exists booking ;
-create table booking(
-booking_id int unsigned not null auto_increment,
-offer_id int unsigned not null,
-user_id smallint unsigned not null,
-statusx tinyint not null default 1,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key (booking_id),
-constraint FK_booking_offer foreign key (offer_id) references offer(offer_id) on delete restrict on update cascade,
-constraint FK_booking_user foreign key (user_id) references user(user_id) on delete restrict on update cascade
+CREATE TABLE booking (
+    booking_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    offer_id INT UNSIGNED NOT NULL,
+    user_id SMALLINT UNSIGNED NOT NULL,
+    statusx TINYINT NOT NULL DEFAULT 1,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (booking_id),
+    CONSTRAINT FK_booking_offer FOREIGN KEY (offer_id)
+        REFERENCES offer (offer_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT FK_booking_user FOREIGN KEY (user_id)
+        REFERENCES user (user_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Tabla de relaciones entre las ofertas y las categorias
 drop table if exists offer_category;
-create table offer_category(
-offer_id int unsigned not null,
-category_id tinyint unsigned not null,
-create_date timestamp not null default current_timestamp,
-last_modify_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-constraint PK_offer_category primary key (offer_id, category_id),
-constraint FK_offer_category_offer foreign key (offer_id) references offer(offer_id) on delete restrict on update cascade,
-constraint FK_offer_category_category foreign key (category_id) references category(category_id) on delete restrict on update cascade
+CREATE TABLE offer_category (
+    offer_id INT UNSIGNED NOT NULL,
+    category_id TINYINT UNSIGNED NOT NULL,
+    create_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (offer_id , category_id),
+    CONSTRAINT FK_offer_category_offer FOREIGN KEY (offer_id)
+        REFERENCES offer (offer_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT FK_offer_category_category FOREIGN KEY (category_id)
+        REFERENCES category (category_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Tabla relaciones entre ofertas y disponibilidades horarias
 drop table if exists offer_availability;
-create table offer_availability(
-offer_id int unsigned not null,
-availability_id tinyint unsigned not null,
-create_at timestamp not null default current_timestamp,
-last_modify timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-primary key(offer_id, availability_id),
-constraint FK_offer_availability_offer foreign key(offer_id) references offer(offer_id) on delete restrict on update cascade,
-constraint FK_offer_availability_availability foreign key(availability_id) references availability(availability_id) on delete restrict on update cascade
+CREATE TABLE offer_availability (
+    offer_id INT UNSIGNED NOT NULL,
+    availability_id TINYINT UNSIGNED NOT NULL,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (offer_id , availability_id),
+    CONSTRAINT FK_offer_availability_offer FOREIGN KEY (offer_id)
+        REFERENCES offer (offer_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT FK_offer_availability_availability FOREIGN KEY (availability_id)
+        REFERENCES availability (availability_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
 );
  
+ -- Tabla de configuracion de la aplicacion para futuros usos
+ -- Atributo config_name = Nombre de la variable de configuracion
+ -- Atributo config_type = Tipo de variable: 1 - Numero, 2 - Texto, 3 - Buleano (0 o 1)
+ drop table if exists config;
+CREATE TABLE config (
+    config_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    config_name VARCHAR(255) NOT NULL UNIQUE,
+    config_type TINYINT UNSIGNED NOT NULL,
+    config_value VARCHAR(255) NOT NULL,
+    PRIMARY KEY (config_id)
+);
+
 
 -- INSERTS 
 
@@ -191,3 +227,6 @@ insert into offer_category(offer_id, category_id) values(1, 8), (1, 4), (2, 2), 
 
 -- Horario de cada oferta (3)
 insert into offer_availability(offer_id, availability_id) values(1, 1), (2, 2), (3, 1);
+
+-- Configuracion de la aplicacion
+ insert into config(config_name, config_type, config_value) values("Permitir borrar ofertas", 3, 0);
