@@ -34,6 +34,7 @@ const addData = args[2] === '--data';
       gender: 'Male',
       email: 'giyilok@gmail.com',
       pass: password,
+      statusx: 1,
       city_id: 10,
       role: 3
     });

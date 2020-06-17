@@ -1,8 +1,8 @@
 'use stric';
 
-const { getConnection } = require('../../dbsql');
-
 const { editUserSchema } = require('../../util/validations');
+
+const UserModel = require('../../models/UserModel');
 
 const {
   processAndSavePhoto,
@@ -11,8 +11,8 @@ const {
 } = require('../../util/helpers');
 
 // TODO Revisar y mejorar el Joi
+// Ruta para actualizar los datos del usuario
 async function editUser(req, res, next) {
-  let connection;
   try {
     await editUserSchema.validateAsync(req.body);
 
@@ -27,18 +27,17 @@ async function editUser(req, res, next) {
       phone
     } = req.body;
 
-    connection = await getConnection();
-
     // Comprobamos que exista el usuario
-    const sqlQuery = 'SELECT * FROM user WHERE user_id = ?';
-    const [result] = await connection.query(sqlQuery, [id]);
+    /* const sqlQuery = 'SELECT * FROM user WHERE user_id = ?';
+    const [result] = await connection.query(sqlQuery, [id]); */
+    const user = await UserModel.getUserById(id);
+    console.log(user);
 
-    console.log(result);
-    if (!result.length) {
+    if (!user) {
       throw generateError(`No existe el usuario con el id ${id}`, 404);
     }
 
-    const [user] = result;
+    //const [user] = existingUser;
 
     // Compobamos si el usuario de req.auth es el mismo que el solicitado o es el administrador
     if (user.user_id !== req.auth.id && req.auth.role !== 3) {
@@ -66,7 +65,7 @@ async function editUser(req, res, next) {
     }
 
     // Actualizamos los datos del usuario
-    const sqlQueryUpdate =
+    /* const sqlQueryUpdate =
       'UPDATE user SET user_name = ?, last_name = ?, birth_date = ?, gender = ?, city_id = ?, email = ?, image = ?, phone = ? WHERE user_id = ?';
 
     await connection.query(sqlQueryUpdate, [
@@ -79,13 +78,22 @@ async function editUser(req, res, next) {
       savedFileName,
       phone,
       id
-    ]);
+    ]); */
+    await UserModel.editUser(
+      user_name,
+      last_name,
+      birth_date,
+      gender,
+      city_id,
+      email,
+      savedFileName,
+      phone,
+      id
+    );
 
     res.send({ status: 'ok', message: 'Usuario actualizado' });
   } catch (error) {
     next(error);
-  } finally {
-    if (connection) connection.release;
   }
 }
 

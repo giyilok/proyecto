@@ -1,7 +1,7 @@
 'use strict';
 const bcrypt = require('bcrypt');
 
-const { getConnection } = require('../../dbsql');
+// const { getConnection } = require('../../dbsql');
 
 const {
   generateError,
@@ -11,23 +11,28 @@ const {
 
 const { userSchema } = require('../../util/validations');
 
+const UserModel = require('../../models/UserModel');
+
 //Registro de usuario
 async function newUser(req, res, next) {
-  let connection;
+  // let connection;
 
   try {
     // Validamos los datos enviados en la request
     await userSchema.validateAsync(req.body);
 
-    connection = await getConnection();
+    //connection = await getConnection();
     const { email, password } = req.body;
 
+    // Comprobamos si ya existe algún usuario con ese Id
+    const existingUser = await UserModel.getUserByMail(email);
+
     //Comprobar si el usuario ya existe
-    const [
+    /* const [
       existingUser
     ] = await connection.query('select user_id from user where email = ?', [
       email
-    ]);
+    ]); */
 
     // Si el usuario ya existe lanza un error
     if (existingUser.length) {
@@ -55,20 +60,19 @@ async function newUser(req, res, next) {
     }
 
     // Grabamos el usuario en la db
-    await connection.query(
+    /* await connection.query(
       `insert into user (email, pass, registration_code) values (?, ?, ?)`,
       [email, dbPassword, registrationCode]
-    );
+    ); */
+    await UserModel.newUser(email, dbPassword, registrationCode);
 
     //Enviamos la respuesta
     res.send({
       status: 'ok',
-      message: 'Usuario registrado. Mira tu email para activarlo'
+      message: 'Usuario registrado con éxito. Mira tu email para activarlo'
     });
   } catch (error) {
     next(error);
-  } finally {
-    if (connection) connection.release();
   }
 }
 

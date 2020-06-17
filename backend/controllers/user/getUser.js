@@ -1,18 +1,18 @@
 'use strict';
 
-const { getConnection } = require('../../dbsql');
+/* const { getConnection } = require('../../dbsql');
 
-const { generateError } = require('../../util/helpers');
+const { generateError } = require('../../util/helpers'); */
+
+const UserModel = require('../../models/UserModel');
 
 // Devuelve los datos de un usuario por id
 // Ruta /user/:id  Method:GET
 async function getUser(req, res, next) {
-  let connection;
-
   try {
     const { id } = req.params;
 
-    connection = await getConnection();
+    /* // connection = await getConnection();
 
     const [
       result
@@ -24,16 +24,20 @@ async function getUser(req, res, next) {
     }
 
     // Poner aquí los campos que se quieran devolver en el payload
-    const [payload] = result;
+    const [payload] = result; */
 
+    // Pedimos los datos del usuario al modelo
+    // Aquí podríamos decidir lo que queremos cargar en el payload
+    const payload = await UserModel.getUserById(id);
+
+    // Si todo fue bien, enviamos la respuesta con los datos
     res.send({
       status: 'ok',
-      data: payload
+      data: payload,
+      message: 'Datos del usuario obtenidos con éxito'
     });
   } catch (error) {
     next(error);
-  } finally {
-    if (connection) connection.release();
   }
 }
 

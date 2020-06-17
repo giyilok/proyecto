@@ -7,6 +7,8 @@ const { getConnection } = require('../../dbsql');
 const { userSchema } = require('../../util/validations');
 const { generateError } = require('../../util/helpers');
 
+// Ruta para loguear usuarios
+// Ruta /user/login Método POST
 async function loginUser(req, res, next) {
   let connection;
 
