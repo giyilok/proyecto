@@ -3,6 +3,7 @@
 const express = require('express');
 
 // Imports de los controladores
+const getOffers = require('../controllers/offer/getOffers');
 const getRandomOffer = require('../controllers/offer/getRandomOffer');
 const newOffer = require('../controllers/offer/newOffer');
 const searchOffer = require('../controllers/offer/searchOffer');
@@ -25,6 +26,7 @@ const checkOffer = require('../middlewares/checkOffer');
 const router = express.Router();
 
 // Rutas de proveedor
+router.get('/getoffers', getOffers);
 router.get('/random/:limit', getRandomOffer); // Ruta que devuelve n ofertas aleatorias publicadas
 router.post('/', ensureAuthenticated, authRole(2), newOffer); // Ruta para registrar una nueva oferta
 router.get('/search/land', searchOffer); // Búsqueda general de la landing

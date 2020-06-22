@@ -135,10 +135,9 @@ async function avancedSearchOffer(req, res, next) {
         ' OR '
       )} ${sqlQuerySort}`;
     }
-    console.log(sqlQuery, 'Esta es la query')[results] = await connection.query(
-      sqlQuery,
-      params
-    );
+    console.log(sqlQuery, 'Esta es la query');
+
+    [results] = await connection.query(sqlQuery, params);
 
     if (!results.length) {
       throw generateError(

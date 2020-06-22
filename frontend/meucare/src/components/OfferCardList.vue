@@ -3,7 +3,12 @@
     <div class="provider">
       <img :src="offer.image" alt="avatar" />
       <h3>{{ offer.user_name }} {{ offer.last_name }}</h3>
-      <p>Rating</p>
+      <StarRating
+        v-model="offer.score_avg"
+        :increment="1"
+        :star-size="starsize"
+      ></StarRating>
+
       <p>{{ offer.xp_years }} años de experiencia</p>
     </div>
 
@@ -20,7 +25,7 @@
     </div>
 
     <div class="price-rigth">
-      <p>¡Solo queda 1 plaza!</p>
+      <p>{{ offer.customer_min }}</p>
       <p class="price">
         {{
           offer.price
@@ -37,11 +42,13 @@
 import IconifyIcon from "@iconify/vue";
 import iAmbulance from "@iconify/icons-medical-icon/i-ambulance";
 import iInpatient from "@iconify/icons-medical-icon//i-inpatient";
+import StarRating from "vue-star-rating";
 
 export default {
   name: "OfferCardFront",
   components: {
     IconifyIcon,
+    StarRating,
   },
   data() {
     return {
@@ -49,6 +56,8 @@ export default {
         iAmbulance,
         iInpatient,
       },
+      starsize: 18,
+      //rating: this.offer.score_avg,
     };
   },
   props: {

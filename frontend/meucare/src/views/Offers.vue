@@ -36,7 +36,7 @@
       >
         <option value="1">Más nuevos</option>
         <option value="2">Mejor valorados</option>
-        <option value="4">Más experiencia</option>
+        <option value="3">Más experiencia</option>
       </select>
 
       <!--  Formulario de búsqueda  -->
@@ -91,11 +91,11 @@ export default {
       try {
         var self = this;
         const response = await axios.get(
-          "http://localhost:3001/offer/random/5"
+          `http://localhost:3001/offer/getoffers?sort=${this.selected}`
         );
 
-        self.offers = response.data.payload;
-        console.log(self.offers);
+        self.offers = response.data.results;
+        console.log(self.offers, "HOLA");
       } catch (error) {
         console.log(error);
       }
@@ -117,7 +117,7 @@ export default {
       }
     },
     onChange() {
-      this.searchOffers();
+      this.getOffers();
     },
   },
   created() {
@@ -160,6 +160,5 @@ form input {
 }
 
 select {
-  margin: ;
 }
 </style>
