@@ -21,7 +21,7 @@ async function loginUser(req, res, next) {
 
     // Buscamos en la db el usuario con los datos proporcionados
     const sqlQuery =
-      'SELECT user_id, email, pass, role FROM user WHERE email = ? AND statusx = 1';
+      'SELECT user_id, user_name, email, pass, role FROM user WHERE email = ? AND statusx = 1';
     const [dbUser] = await connection.query(sqlQuery, [email]);
 
     if (!dbUser.length) {
@@ -41,14 +41,19 @@ async function loginUser(req, res, next) {
     }
 
     // Si todo es correcto creamos el token y lo devolvemos
-    const tokenPayload = { id: user.user_id, role: user.role };
+    const tokenPayload = {
+      id: user.user_id,
+      role: user.role,
+      userName: user.user_name
+    };
+
     const token = jwt.sign(tokenPayload, process.env.SECRET, {
-      expiresIn: '15d'
+      expiresIn: '8d'
     });
 
     res
       .status(200)
-      .send({ status: 'ok', message: 'Login correcto', data: { token } });
+      .send({ status: 'ok', message: 'Login correcto', tokenData: { token } });
   } catch (error) {
     next(error);
   } finally {

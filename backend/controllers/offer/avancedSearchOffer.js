@@ -22,8 +22,11 @@ async function avancedSearchOffer(req, res, next) {
       sort
     } = req.query;
 
-    let sqlQuery = `SELECT DISTINCT o.offer_id, o.title, o.description, u.user_name,  
-    u.last_name, p.speciality, p.score_avg, p.xp_years, c.city_name FROM offer o
+    console.log(req.query);
+    console.log(userName);
+
+    let sqlQuery = `SELECT DISTINCT o.offer_id, o.title, o.description, o.price, o.price_type, u.user_name,  
+    u.last_name, u.image, p.speciality, p.score_avg, p.xp_years, c.city_name FROM offer o
     JOIN provider p ON p.user_id = o.provider_id
     JOIN user u ON u.user_id = p.user_id
     JOIN city c ON c.city_id = o.city_id
@@ -115,12 +118,27 @@ async function avancedSearchOffer(req, res, next) {
         }
       }
 
+      // Preparamos la query según el criterio de ordenación
+      switch (sort) {
+        case '1':
+          sqlQuerySort = 'ORDER BY p.score_avg DESC, u.last_name ASC';
+          break;
+        case '2':
+          sqlQuerySort = 'ORDER BY p.xp_years DESC, u.last_name ASC';
+          break;
+        case '4':
+          sqlQuerySort = 'ORDER BY o.create_at DESC, u.last_name ASC';
+          break;
+      }
+
       sqlQuery = `${sqlQuery} ${whereOptions} ${conditions.join(
         ' OR '
       )} ${sqlQuerySort}`;
     }
-
-    [results] = await connection.query(sqlQuery, params);
+    console.log(sqlQuery, 'Esta es la query')[results] = await connection.query(
+      sqlQuery,
+      params
+    );
 
     if (!results.length) {
       throw generateError(

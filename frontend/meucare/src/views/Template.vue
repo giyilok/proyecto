@@ -1,14 +1,20 @@
 <template>
-  <div class="about">
+  <div class="landing">
+    <!--  Título de la pestaña -->
+    <div>
+      <vue-headful title="Meucare" description="Cuidadores compartidos" />
+    </div>
+    <!--  Título de la pestaña -->
+
     <!--  Menú de navegación  -->
     <menuapp></menuapp>
     <!--  Menú de navegación  -->
 
     <div class="blank"></div>
 
-    <h1>This is an about page</h1>
+    <!--  Contenido de la vista  -->
 
-    <offercard></offercard>
+    <!--  Contenido de la vista  -->
 
     <!-- Footer -->
     <footerapp class="footerapp"></footerapp>
@@ -17,15 +23,15 @@
 </template>
 
 <script>
+import Swal from "sweetalert2";
 import menuapp from "../components/MenuApp";
 import footerapp from "../components/FooterApp";
-import offercard from "../components/OfferCardFront";
 
 export default {
+  name: "Landing",
   components: {
     menuapp,
     footerapp,
-    offercard,
   },
 };
 </script>

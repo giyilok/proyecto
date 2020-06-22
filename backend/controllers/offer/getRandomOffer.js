@@ -5,17 +5,23 @@ const { getConnection } = require('../../dbsql');
 const { generateError } = require('../../util/helpers');
 
 // Obtenemos las n ofertas aleatorias que le especifiquemos
-// Ruta /offer/random/:offerId
+// Ruta /offer/random/:limit
 async function getRandomOffer(req, res, next) {
   let connection;
 
   try {
-    const { limit } = req.query;
+    const { limit } = req.params;
     console.log(limit);
     connection = await getConnection();
 
-    const sqlQuery =
-      'SELECT * FROM offer o JOIN provider p ON o.provider_id = p.user_id JOIN city c ON c.city_id = o.city_id JOIN offer_category oc ON o.offer_id = oc.offer_id WHERE o.statusx = 1  ORDER BY RAND() LIMIT ?';
+    // TODO Ver necesidades de más campos en esta consulta
+    const sqlQuery = `SELECT DISTINCT o.*, p.*, u.*, c.city_name FROM offer o
+          JOIN provider p ON o.provider_id = p.user_id
+          JOIN user u ON u.user_id = p.user_id
+          JOIN city c ON c.city_id = o.city_id
+          WHERE o.statusx = 1  
+          ORDER BY RAND() LIMIT ?`;
+
     const [result] = await connection.query(sqlQuery, [Number(limit)]);
 
     if (!result.length) {
@@ -27,7 +33,7 @@ async function getRandomOffer(req, res, next) {
 
     res.send({
       status: 'ok',
-      data: result
+      payload: result
     });
   } catch (error) {
     next(error);

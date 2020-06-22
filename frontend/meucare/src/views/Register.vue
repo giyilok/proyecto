@@ -6,6 +6,12 @@
     </div>
     <!--  Título de la pestaña -->
 
+    <!--  Menú de navegación  -->
+    <menuapp></menuapp>
+    <!--  Menú de navegación  -->
+
+    <div class="blank"></div>
+
     <!-- Formulario para añadir clientes-->
     <div class="container">
       <form>
@@ -51,6 +57,10 @@
       </form>
     </div>
 
+    <!-- Footer -->
+    <footerapp class="footerapp"></footerapp>
+    <!-- Footer -->
+
     <!-- Formulario -->
   </div>
 </template>
@@ -58,6 +68,8 @@
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
+import menuapp from "../components/MenuApp";
+import footerapp from "../components/FooterApp";
 
 export default {
   name: "AddClient",
@@ -71,7 +83,10 @@ export default {
       match: false,
     };
   },
-  components: {},
+  components: {
+    menuapp,
+    footerapp,
+  },
   methods: {
     // Función para comprobar si se dejó algún campo vacío
     validatingData() {
@@ -156,6 +171,10 @@ export default {
   box-sizing: content-box;
 }
 
+.blank {
+  height: 66px;
+}
+
 .footercustom {
   color: white;
 }
@@ -167,10 +186,10 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat; */
-  border: 1px solid black;
 }
 
 .container {
+  margin-top: 3rem;
   position: absolute;
   left: 50%;
   top: 25%;
@@ -219,14 +238,6 @@ export default {
   font-size: 18px;
   color: #fafafa;
   border-radius: 18px;
-}
-
-.footercustom {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 80px;
-  color: white;
 }
 
 a {
