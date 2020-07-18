@@ -25,7 +25,7 @@ async function avancedSearchOffer(req, res, next) {
     console.log(req.query);
     console.log(userName);
 
-    let sqlQuery = `SELECT DISTINCT o.offer_id, o.title, o.description, o.price, o.price_type, u.user_name,  
+    let sqlQuery = `SELECT DISTINCT o.offer_id, o.title, o.description, o.price, o.price_type, o.create_at, u.user_name,  
     u.last_name, u.image, p.speciality, p.score_avg, p.xp_years, c.city_name FROM offer o
     JOIN provider p ON p.user_id = o.provider_id
     JOIN user u ON u.user_id = p.user_id
@@ -76,13 +76,13 @@ async function avancedSearchOffer(req, res, next) {
       // Preparamos la query según el criterio de ordenación
       switch (sort) {
         case '1':
-          sqlQuerySort = 'ORDER BY p.score_avg DESC, u.last_name ASC';
+          sqlQuerySort = 'ORDER BY o.create_at DESC, u.last_name ASC';
           break;
         case '2':
-          sqlQuerySort = 'ORDER BY p.xp_years DESC, u.last_name ASC';
+          sqlQuerySort = 'ORDER BY p.score_avg DESC, u.last_name ASC';
           break;
-        case '4':
-          sqlQuerySort = 'ORDER BY o.create_at DESC, u.last_name ASC';
+        case '3':
+          sqlQuerySort = 'ORDER BY p.xp_years DESC, u.last_name ASC';
           break;
       }
 
@@ -121,13 +121,13 @@ async function avancedSearchOffer(req, res, next) {
       // Preparamos la query según el criterio de ordenación
       switch (sort) {
         case '1':
-          sqlQuerySort = 'ORDER BY p.score_avg DESC, u.last_name ASC';
+          sqlQuerySort = 'ORDER BY o.create_at DESC, u.last_name ASC';
           break;
         case '2':
-          sqlQuerySort = 'ORDER BY p.xp_years DESC, u.last_name ASC';
+          sqlQuerySort = 'ORDER BY p.score_avg DESC, u.last_name ASC';
           break;
-        case '4':
-          sqlQuerySort = 'ORDER BY o.create_at DESC, u.last_name ASC';
+        case '3':
+          sqlQuerySort = 'ORDER BY p.xp_years DESC, u.last_name ASC';
           break;
       }
 
@@ -136,7 +136,6 @@ async function avancedSearchOffer(req, res, next) {
       )} ${sqlQuerySort}`;
     }
     console.log(sqlQuery, 'Esta es la query');
-
     [results] = await connection.query(sqlQuery, params);
 
     if (!results.length) {

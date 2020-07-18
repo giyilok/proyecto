@@ -22,7 +22,7 @@ async function getCities(req, res, next) {
 
     res.status(200).send({
       status: 'ok',
-      data: result
+      cities: result
     });
   } catch (error) {
     next(error);

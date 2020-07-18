@@ -7,6 +7,7 @@ const ENDPOINT = "http://localhost:3001";
 const AUTH_TOKEN_KEY = "authToken";
 const ROLE = "role";
 const NAME = "name";
+const ID = "id";
 
 // Función de login
 export async function loginUser(email, password) {
@@ -33,6 +34,7 @@ export async function loginUser(email, password) {
     setAuthToken(token);
     setRole(role);
     setUserName(userName);
+    setUserId(id);
   } catch (error) {
     throw error;
   }
@@ -45,6 +47,7 @@ export function clearLogin() {
   // Borramos los datos del usuario del localstorage
   clearAuthToken();
   clearRole();
+  clearUserName();
   clearUserName();
 }
 
@@ -106,6 +109,11 @@ export function setUserName(name) {
   localStorage.setItem(NAME, name);
 }
 
+// Guarda en el localstorage el id del usuario
+export function setUserId(id) {
+  localStorage.setItem(ID, id);
+}
+
 // Borrar rol del usuario del localstorage
 export function clearRole() {
   return localStorage.removeItem(ROLE);
@@ -116,6 +124,11 @@ export function clearUserName() {
   return localStorage.removeItem(NAME);
 }
 
+// Borrar el id del usuario del localstorage
+export function clearUserId() {
+  return localStorage.removeItem(ID);
+}
+
 // Recuperar el role que se ha guardado en localStorage
 export function getRole() {
   return localStorage.getItem(ROLE);
@@ -124,6 +137,11 @@ export function getRole() {
 // Recuperar el nombre del usuario del localstorage
 export function getUserName() {
   return localStorage.getItem(NAME);
+}
+
+// Recuperar el id del usuario del localstorage
+export function getUserId() {
+  return localStorage.getItem(ID);
 }
 
 // Comprobar rol

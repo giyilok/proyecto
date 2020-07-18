@@ -7,6 +7,7 @@ const newBooking = require('../controllers/booking/newBooking');
 const getUsersByOffer = require('../controllers/booking/getUsersByOffer');
 const getBookingByUser = require('../controllers/booking/getBookingByUser');
 const deleteBooking = require('../controllers/booking/deleteBooking');
+const getBookingByOffer = require('../controllers/booking/getBookingByOffer');
 
 // Imports middlewares
 const ensureAuthenticated = require('../middlewares/ensureAuthenticated');
@@ -28,7 +29,7 @@ router.post(
   newBooking
 ); // Realiza una reserva de la oferta especificada
 router.get(
-  '/users/offer/:offerId',
+  '/user/offer/:offerId',
   ensureAuthenticated,
   authRole(2, 3),
   checkUser,
@@ -49,5 +50,6 @@ router.delete(
   checkUser,
   deleteBooking
 ); // Borra la reserva especificada
+router.get('/offer/:offerId', checkOfferSimple, getBookingByOffer); // Obtiene las reservas de cada oferta
 
 module.exports = router;

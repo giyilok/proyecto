@@ -3,13 +3,17 @@
     <div id="nav">
       <router-link :to="{ name: 'Landing' }">Inicio</router-link>
       <router-link :to="{ name: 'Login' }">Login</router-link>
+      <router-link :to="{ name: 'NewLogin' }">New Login</router-link>
       <router-link :to="{ name: 'Register' }">Registro</router-link>
       <router-link :to="{ name: 'Offers' }">Offers</router-link>
       <router-link :to="{ name: 'About' }">About</router-link>
+      <router-link :to="{ name: 'ProviderRegister' }">Registro Proveedor</router-link>
     </div>
 
-    <div class="info">
-      <span>Hola, {{ name }}</span>
+    <div class="info" v-if="loged">
+      <router-link :to="{name: 'UserProfile'}">
+        <span>Hola, {{ name }}</span>
+      </router-link>
       <button @click="logoutUser">Logout</button>
     </div>
   </div>
@@ -20,7 +24,7 @@ import {
   clearLogin,
   getUserName,
   isLoggedIn,
-  checkAdmin,
+  checkAdmin
 } from "../utils/utils";
 
 export default {
@@ -29,16 +33,20 @@ export default {
     return {
       name: "",
       visible: false,
+      loged: false
     };
   },
   methods: {
     logoutUser() {
       this.$router.push("/");
       return clearLogin();
-    },
+    }
   },
   created() {
-    this.name = getUserName();
+    if (isLoggedIn()) {
+      this.loged = true;
+      this.name = getUserName();
+    }
   },
   // TODO Hacer el control de roles definitivo para control
   // de visibilidad en los menús
@@ -46,7 +54,7 @@ export default {
     /* if (checkAdmin()) {
       this.visible = true;
     } */
-  },
+  }
 };
 </script>
 

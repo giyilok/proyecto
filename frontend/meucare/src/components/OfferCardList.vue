@@ -3,11 +3,7 @@
     <div class="provider">
       <img :src="offer.image" alt="avatar" />
       <h3>{{ offer.user_name }} {{ offer.last_name }}</h3>
-      <StarRating
-        v-model="offer.score_avg"
-        :increment="1"
-        :star-size="starsize"
-      ></StarRating>
+      <StarRating v-model="rating" :increment="1" :star-size="starsize"></StarRating>
 
       <p>{{ offer.xp_years }} años de experiencia</p>
     </div>
@@ -25,13 +21,13 @@
     </div>
 
     <div class="price-rigth">
-      <p>{{ offer.customer_min }}</p>
+      <p>{{ message }}</p>
       <p class="price">
         {{
-          offer.price
-            .split(".")
-            .slice(0, 1)
-            .shift()
+        offer.price
+        .split(".")
+        .slice(0, 1)
+        .shift()
         }}€ / {{ offer.price_type }}
       </p>
     </div>
@@ -39,30 +35,55 @@
 </template>
 
 <script>
+import axios from "axios";
 import IconifyIcon from "@iconify/vue";
 import iAmbulance from "@iconify/icons-medical-icon/i-ambulance";
 import iInpatient from "@iconify/icons-medical-icon//i-inpatient";
 import StarRating from "vue-star-rating";
 
 export default {
-  name: "OfferCardFront",
+  name: "OfferCardList",
   components: {
     IconifyIcon,
-    StarRating,
+    StarRating
   },
   data() {
     return {
       icons: {
         iAmbulance,
-        iInpatient,
+        iInpatient
       },
       starsize: 18,
-      //rating: this.offer.score_avg,
+      rating: Number(this.offer.score_avg),
+      message: ""
     };
   },
   props: {
-    offer: Object,
+    offer: Object
   },
+  methods: {
+    async checkBooking() {
+      var self = this;
+
+      const response = await axios.get(
+        `http://localhost:3001/booking/offer/${self.offer.offer_id}`
+      );
+
+      const booking = response.data.booking.reservas;
+
+      // Preparamos mensaje según las plazas disponibles
+      const freeSlot = self.offer.customer_min - booking;
+
+      if (freeSlot === 1) {
+        self.message = `¡Solo queda ${freeSlot} plaza!`;
+      } else {
+        self.message = `Quedan ${freeSlot} plazas`;
+      }
+    }
+  },
+  created() {
+    this.checkBooking();
+  }
 };
 </script>
 
@@ -76,7 +97,7 @@ export default {
   max-width: 800px;
   height: 200px;
   margin: 10px 10px;
-  background: #f1eeee;
+  background: #f9f9f9;
 }
 
 .provider {
@@ -139,7 +160,7 @@ export default {
 
 .price {
   border-radius: 12px;
-  background: #e4acf8;
+  background: rgb(245, 168, 33);
   padding: 10px 18px;
 }
 

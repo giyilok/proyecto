@@ -17,7 +17,7 @@
 
     <div class="view">
       <!--  Formulario de búsqueda  -->
-      <form action>
+      <form action="">
         <input
           type="text"
           autofocus
@@ -28,21 +28,16 @@
       </form>
 
       <p>Filtra los resultados</p>
-      <select name="selector" id="selector" @change="onChange" v-model="selected">
+      <select
+        name="selector"
+        id="selector"
+        @change="onChange"
+        v-model="selected"
+      >
         <option value="1">Más nuevos</option>
         <option value="2">Mejor valorados</option>
         <option value="3">Más experiencia</option>
       </select>
-
-      <!-- Test -->
-      <input type="date" class="form-control" />
-      <input type="date" />
-      <input
-        type="checkbox"
-        v-bind:checked="checked"
-        v-on:change="$emit('change', $event.target.checked)"
-      />
-      <!-- Test -->
 
       <!--  Formulario de búsqueda  -->
 
@@ -87,14 +82,14 @@ export default {
       offers: [],
       selected: 1,
       user: {},
-      menuVisible: false
+      menuVisible: false,
     };
   },
   components: {
     menuapp,
     footerapp,
     offercard,
-    menuuser
+    menuuser,
   },
   methods: {
     async getOffers() {
@@ -151,7 +146,7 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    }
+    },
   },
   // Al crearse el componente se cargan las ofertas disponibles
   // y el menú de usuario si está logueado
@@ -161,7 +156,7 @@ export default {
     if (isLoggedIn()) {
       this.getUser();
     }
-  }
+  },
 };
 </script>
 

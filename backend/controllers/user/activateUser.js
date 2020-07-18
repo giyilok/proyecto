@@ -17,6 +17,7 @@ async function activateUser(req, res, next) {
 
     const [result] = await connection.query(sqlQuery, [code]);
     console.log(result);
+
     // Comprobamos si se produjo la actualización
     if (result.affectedRows === 0) {
       throw generateError('Validación incorrecta', 400);

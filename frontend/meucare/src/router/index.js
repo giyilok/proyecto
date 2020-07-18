@@ -24,6 +24,15 @@ const routes = [
     }, */
   },
   {
+    path: "/newlogin",
+    name: "NewLogin",
+    component: () => import("../views/NewLogin.vue"),
+    /* meta: {
+      // Ruta pública
+      allowAnonymous: true,
+    }, */
+  },
+  {
     path: "/register",
     name: "Register",
     component: () => import("../views/Register.vue"),
@@ -45,6 +54,24 @@ const routes = [
     path: "/offers",
     name: "Offers",
     component: () => import("../views/Offers.vue"),
+    /* meta: {
+      // Ruta pública
+      allowAnonymous: true,
+    }, */
+  },
+  {
+    path: "/profile",
+    name: "UserProfile",
+    component: () => import("../views/UserProfile.vue"),
+    /* meta: {
+      // Ruta pública
+      allowAnonymous: true,
+    }, */
+  },
+  {
+    path: "/providerReg",
+    name: "ProviderRegister",
+    component: () => import("../views/ProviderRegister.vue"),
     /* meta: {
       // Ruta pública
       allowAnonymous: true,
