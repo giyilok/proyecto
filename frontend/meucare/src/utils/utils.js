@@ -28,8 +28,10 @@ export async function loginUser(email, password) {
 
     const { token } = response.data.tokenData;
     console.log(token);
+
     // Extraemos los datos del token
     const { id, role, userName } = jwt(token);
+
     // Guardamos los datos en el localstorage
     setAuthToken(token);
     setRole(role);
@@ -47,7 +49,6 @@ export function clearLogin() {
   // Borramos los datos del usuario del localstorage
   clearAuthToken();
   clearRole();
-  clearUserName();
   clearUserName();
 }
 

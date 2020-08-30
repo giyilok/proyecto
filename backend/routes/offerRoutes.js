@@ -33,7 +33,7 @@ router.get('/search/land', searchOffer); // Búsqueda general de la landing
 router.get('/search', avancedSearchOffer); // Búsqueda avanzada
 router.get('/:offerId', getOfferById); // Ruta que devuelve la oferta con el id especificado
 router.get('/rated/:limit', getRatedOffer); // Devuelve las n ofertas aleatorias de entre las mejor valoradas (puntuación de 4 a 5)
-router.patch(
+router.put(
   '/set/:statusx/offer/:offerId',
   ensureAuthenticated,
   authRole(2),

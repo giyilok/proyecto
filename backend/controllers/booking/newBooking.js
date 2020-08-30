@@ -69,6 +69,8 @@ async function newBooking(req, res, next) {
         // todo lo anterior y lanzamos un error. Si el número de reservas es igual
         // al número de activación ponemos la reserva en estado activada (2).
         if (offersCount > customer_min) {
+          console.log('Hasta aquí llego');
+
           throw generateError(
             'Error no se ha podido realizar la reserva. No quedan plazas',
             400
@@ -91,7 +93,8 @@ async function newBooking(req, res, next) {
       } catch (error) {
         await connection.query('ROLLBACK');
         console.log('Error hacemos rollback');
-        throw generateError('Error. No se ha podido realizar la reserva', 500);
+        //throw generateError('Error. No se ha podido realizar la reserva', 500);
+        throw error;
       }
     } else {
       throw generateError(
@@ -100,20 +103,24 @@ async function newBooking(req, res, next) {
       );
     }
 
-    // Enviamos las notificaciones a quien corresponda según el estado de la oferta
+    /* Enviamos las notificaciones a quien corresponda según el estado de la oferta */
+
+    // Obtenemos los datos del proveedor de la oferta
     const sqlProvider = `SELECT u.user_name, u.last_name, u.email FROM user u
                               JOIN offer o ON o.provider_id = u.user_id
                               WHERE o.offer_id = ?`;
     const [resultProvider] = await connection.query(sqlProvider, [offerId]);
+
     // Datos del proveedor
     const [providerData] = resultProvider;
 
+    // Obtemos los datos del cliente que realiza la reserva
     const sqlUser = `SELECT user_name, last_name, email FROM user 
                               WHERE user_id = ?`;
     const [resultUser] = await connection.query(sqlUser, [userId]);
+
     // Datos del usuario
     const [userData] = resultUser;
-    console.log(userData.email);
     const resultData = [userData, providerData];
 
     // Enviamos correo de confirmación de reserva al usuario con copia al proveedor

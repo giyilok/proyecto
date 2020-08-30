@@ -25,11 +25,10 @@ async function avancedSearchOffer(req, res, next) {
     console.log(req.query);
     console.log(userName);
 
-    let sqlQuery = `SELECT DISTINCT o.offer_id, o.title, o.description, o.price, o.price_type, o.create_at, u.user_name,  
-    u.last_name, u.image, p.speciality, p.score_avg, p.xp_years, c.city_name FROM offer o
+    let sqlQuery = `SELECT DISTINCT o.offer_id, o.title, o.description, o.price, o.price_type, o.provider_id, o.create_at, u.user_name,  
+    u.last_name, u.image, p.speciality, p.score_avg, p.xp_years, o.city_name FROM offer o
     JOIN provider p ON p.user_id = o.provider_id
     JOIN user u ON u.user_id = p.user_id
-    JOIN city c ON c.city_id = o.city_id
     LEFT JOIN offer_availability oa ON oa.offer_id = o.offer_id 
     LEFT JOIN availability av ON av.availability_id = oa.availability_id
     LEFT JOIN offer_category oc ON oc.offer_id = o.offer_id 
@@ -57,7 +56,7 @@ async function avancedSearchOffer(req, res, next) {
         }
         console.log(city);
         if (city) {
-          conditions.push('c.city_name = ?');
+          conditions.push('o.city_name = ?');
           params = [...params, city];
         }
 
@@ -103,7 +102,7 @@ async function avancedSearchOffer(req, res, next) {
         }
 
         if (city) {
-          conditions.push('c.city_name LIKE ?');
+          conditions.push('o.city_name LIKE ?');
           params = [...params, `%${city}%`];
         }
 

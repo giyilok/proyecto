@@ -20,6 +20,15 @@ const emailSchema = Joi.string()
   .required()
   .error(generateError('El campo email debe ser un email bien formado', 400));
 
+const roleSchema = Joi.number()
+  .valid(1, 2, 3)
+  .error(
+    generateError(
+      'El rol solo puede ser 1 (usuario), 2 (proveedor) o 3 (administrador)',
+      400
+    )
+  );
+
 const passwordSchema = Joi.string()
   .min(6)
   .max(100)
@@ -71,7 +80,8 @@ const voteSchema = Joi.object().keys({
 
 const userSchema = Joi.object().keys({
   email: emailSchema,
-  password: passwordSchema
+  password: passwordSchema,
+  role: roleSchema
 });
 
 const editUserSchema = Joi.object().keys({
@@ -115,57 +125,62 @@ const editPasswordUserSchema = Joi.object().keys({
 // TODO Descomentar el id
 // Validación de datos de oferta
 const offerSchema = Joi.object().keys({
-  city_id: Joi.number()
-    .integer()
-    .positive()
+  city_name: Joi.string()
+    .min(3)
+    .max(255)
     .required()
     .error(
       generateError(
-        'El id del ciudad es obligatorio y debe ser un número entero y positivo',
+        'El nombre de la ciudad es obligatorio y debe tener un mínimo de 3 caracteres',
         400
       )
     ),
   title: Joi.string()
     .min(6)
     .max(255)
+    .required()
     .error(
       generateError(
-        'El título es obligatorio y no puede tener más de 255 caracteres'
+        'El título es obligatorio y no puede tener más de 255 caracteres',
+        400
       )
     ),
   description: Joi.string()
-    .min(6)
-    .max(255)
+    .min(1)
+    .max(1000)
+    .required()
     .error(
-      generateError(
-        'El título es obligatorio y no puede tener más de 255 caracteres'
-      )
+      generateError('La descripción no puede tener más de mil caracteres', 400)
     ),
   customer_min: Joi.number()
     .min(1)
     .max(25)
     .error(
       generateError(
-        'El número mínimo para activar la oferta debe estar entre 1 y 25 usuarios'
+        'El número mínimo para activar la oferta debe estar entre 1 y 25 usuarios',
+        400
       )
+    ),
+  customer_max: Joi.number()
+    .min(1)
+    .max(25)
+    .error(
+      generateError('El número máximo debe estar entre 1 y 25 usuarios', 400)
     ),
   price: Joi.number()
     .precision(2)
     .positive()
     .required()
-    .error(
-      generateError(
-        'El número mínimo para activar la oferta debe estar entre 1 y 25 usuarios'
-      )
-    ),
+    .error(generateError('El precio debe ser una cantidad positiva', 400)),
   price_type: Joi.string()
     .valid('hora', 'día', 'semana', 'mes')
     .required()
     .error(
       generateError(
-        'El tipo de precio debe ser alguno de los siguientes: hora, día, semana, mes'
+        'El tipo de precio debe ser alguno de los siguientes: hora, día, semana, mes',
+        400
       )
-    ),
+    ) /* ,
   categories: Joi.object().keys({
     category: Joi.array().items(
       Joi.number()
@@ -177,11 +192,11 @@ const offerSchema = Joi.object().keys({
           )
         )
     )
-  })
+  }) */
 });
 
-const setSchema = Joi.number()
-  .valid(0, 1, 2)
+const setSchema = Joi.string()
+  .valid('0', '1', '2', '3')
   .error(generateError('El estado de la oferta no es válido', 400));
 
 module.exports = {

@@ -18,9 +18,9 @@
       <div class="container-section">
         <section id="search">
           <h1>
-            Decide. <br />
-            Comparte. <br />
-            Déjate cuidar.
+            Decide.
+            <br />Comparte.
+            <br />Déjate cuidar.
           </h1>
 
           <h4>
@@ -42,7 +42,7 @@
 
         <section class="provider-info">
           <figure>
-            <img src="../assets/caregiver.jpeg" alt="" />
+            <img src="../assets/caregiver.jpeg" alt />
           </figure>
           <div class="container">
             <h2>Yo quiero cuidar</h2>
@@ -69,11 +69,7 @@
       <section class="last-providers">
         <h3>Los últimos cuidadores</h3>
         <div class="offercard">
-          <offercard
-            v-for="offer in offers"
-            :key="offer.id"
-            v-bind:offer="offer"
-          ></offercard>
+          <offercard v-for="offer in offers" :key="offer.id" v-bind:offer="offer"></offercard>
         </div>
       </section>
     </main>
@@ -109,13 +105,12 @@ export default {
   methods: {
     async getFrontInfo() {
       try {
-        var self = this;
         const response = await axios.get(
           "http://localhost:3001/offer/random/4"
         );
 
-        self.offers = response.data.payload;
-        console.log(self.offers);
+        this.offers = response.data.payload;
+        console.log(this.offers);
       } catch (error) {
         console.log(error);
       }

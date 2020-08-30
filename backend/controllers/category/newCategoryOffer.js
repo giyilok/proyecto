@@ -5,7 +5,7 @@ const { generateError } = require('../../util/helpers');
 
 // Asigna una categoría a una oferta
 // Ruta /category/:categoryId/offer/:offerId Método POST
-async function editCategory(req, res, next) {
+async function newCategoryOffer(req, res, next) {
   let connection;
 
   try {
@@ -64,4 +64,4 @@ async function editCategory(req, res, next) {
   }
 }
 
-module.exports = editCategory;
+module.exports = newCategoryOffer;

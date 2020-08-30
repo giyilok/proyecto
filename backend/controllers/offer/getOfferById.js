@@ -5,7 +5,7 @@ const { getConnection } = require('../../dbsql');
 const { generateError } = require('../../util/helpers');
 
 // Obtiene la oferta con el id especificado
-// Ruta /offer/:id Método GET
+// Ruta /:offerId Método GET
 async function getOfferById(req, res, next) {
   let connection;
 
@@ -16,9 +16,6 @@ async function getOfferById(req, res, next) {
     connection = await getConnection();
 
     const sqlQuery = `SELECT * FROM offer o 
-                        JOIN provider p ON o.provider_id = p.user_id
-                        JOIN user u ON u.user_id = p.user_id
-                        JOIN city ON o.city_id = city.city_id 
                         WHERE offer_id = ?`;
 
     const [offer] = await connection.query(sqlQuery, [offerId]);
@@ -30,7 +27,7 @@ async function getOfferById(req, res, next) {
 
     // Si todo fue bien devolvemos la oferta
     const [payload] = offer;
-
+    console.log('Devuelvo esto', payload);
     res.send({
       status: 'ok',
       message: `Oferta con id ${offerId} obtenida con éxito`,

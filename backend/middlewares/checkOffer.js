@@ -14,7 +14,7 @@ async function checkOffer(req, res, next) {
 
     // Comprobamos que exista la oferta especificada
     // Seleccionar en la query los estados de la oferta que se
-    // quieren dejar pasar con 'AND NOT IN (3, 4)
+    // quieren dejar pasar con 'AND statusx NOT IN (3, 4)'
     const sqlQuery =
       'SELECT statusx, provider_id, customer_min FROM offer WHERE offer_id = ?';
     const [offerResults] = await connection.query(sqlQuery, [offerId]);

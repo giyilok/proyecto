@@ -5,6 +5,10 @@ const jwt = require('jsonwebtoken');
 //const { getConnection } = require('../dbsql');
 const { generateError } = require('../util/helpers');
 
+/* Función middleware para comprobar si el usuario está
+   autentificado mediante el token recibido. Se comprueba
+   si el token ha expirado y si todo es correcto se pasa
+   el id y el rol del usuario en req.auth*/
 async function ensureAuthenticated(req, res, next) {
   let connection;
 
@@ -33,12 +37,13 @@ async function ensureAuthenticated(req, res, next) {
 
     try {
       decoded = jwt.verify(token, process.env.SECRET);
+      console.log('Hasta aquí bien');
     } catch (error) {
       throw new Error('El token no está bien formado', 400);
     }
 
-    // FIXME Hay que arreglar esto
-    /* // Comprobamos que la fecha del token sea mayor a la
+    /* // FIXME Hay que arreglar esto
+    // Comprobamos que la fecha del token sea mayor a la
     // fecha de última actualización de password de usuario
     const { id, iat } = decoded;
 
@@ -60,6 +65,7 @@ async function ensureAuthenticated(req, res, next) {
     } */
 
     req.auth = decoded;
+
     next();
   } catch (error) {
     next(error);

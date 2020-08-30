@@ -1,3 +1,5 @@
+'use strict';
+
 const { format } = require('date-fns');
 const sharp = require('sharp');
 const path = require('path');
@@ -6,7 +8,8 @@ const uuid = require('uuid');
 const crypto = require('crypto');
 const sgMail = require('@sendgrid/mail');
 
-const imageUploadPath = path.join(__dirname, process.env.UPLOADS_DIR);
+//const imageUploadPath = path.join(__dirname, process.env.UPLOADS_DIR);
+const imageUploadPath = path.resolve('public', process.env.UPLOADS_DIR);
 
 // Formatea una fecha para que se pueda pasar a la db
 function formatDateToDB(date) {

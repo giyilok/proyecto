@@ -22,9 +22,10 @@ async function newUser(req, res, next) {
     await userSchema.validateAsync(req.body);
 
     //connection = await getConnection();
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
+    console.log(email, password, role);
 
-    // Comprobamos si ya existe algún usuario con ese Id
+    // Comprobamos si ya existe algún usuario con ese email
     const existingUser = await UserModel.getUserByMail(email);
 
     //Comprobar si el usuario ya existe
@@ -38,14 +39,13 @@ async function newUser(req, res, next) {
     if (existingUser.length) {
       throw generateError('Ya existe un usuario con el mismo email', 409);
     }
-
     // Encriptamos la password
     const dbPassword = await bcrypt.hash(password, 10);
 
     //Creamos una cadena aleatoria como para el enlace de validación
     const registrationCode = randomString(40);
 
-    const validationURL = `${process.env.PUBLIC_HOST}/user/activate?code=${registrationCode}`;
+    const validationURL = `http://${process.env.PUBLIC_HOST}/user/activate?code=${registrationCode}`;
 
     try {
       await sendEmail({
@@ -64,7 +64,8 @@ async function newUser(req, res, next) {
       `insert into user (email, pass, registration_code) values (?, ?, ?)`,
       [email, dbPassword, registrationCode]
     ); */
-    await UserModel.newUser(email, dbPassword, registrationCode);
+    await UserModel.newUser(email, dbPassword, registrationCode, role);
+    console.log('Hasta aquí');
 
     //Enviamos la respuesta
     res.send({

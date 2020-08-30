@@ -20,13 +20,7 @@
 
         <!-- Input para nombre -->
         <label for="email">Email:</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="Introduce tu email"
-          required
-          v-model="email"
-        />
+        <input type="email" name="email" placeholder="Introduce tu email" required v-model="email" />
         <br />
 
         <!-- Input para apellido -->
@@ -112,54 +106,59 @@ export default {
         this.match = false; // No se muestra mensaje de no match
       }
     },
-    addClient(nombre, apellido, ciudad, empresa) {
+    async addClient(email, password) {
       // Validando datos del formulario
       this.validatingData();
 
       if (this.correctData) {
-        var self = this;
-        axios
-          .post("http://localhost:3001/user/register", {
-            email: self.email,
-            password: self.password,
-          })
-          .then(function(response) {
-            // Vaciamos los campos para la siguiente inserción
-            self.emptyFields();
+        try {
+          const response = await axios.post(
+            "http://localhost:3001/user/register",
+            {
+              email: this.email,
+              password: this.password,
+              role: 1,
+            }
+          );
 
-            // Imprimimos por pantalla el resultado exitoso
+          // Vaciamos los campos para la siguiente inserción
+          //this.emptyFields();
+
+          // Imprimimos por pantalla el resultado exitoso
+          Swal.fire({
+            title: "¡Usuario registrado!",
+            text: "Te has registrado magistralmente",
+            icon: "success",
+            confirmButtonText: "Ok",
+          });
+
+          // Redirigimos al login
+          this.$router.push("Login");
+        } catch (error) {
+          // Si el error es que ya existe un usuario con ese email
+          if (error.response.status === 409) {
+            // Vaciamos los campos para corrección
+            this.emptyFields();
+
+            // Mostramos modal con el error
             Swal.fire({
-              title: "¡Usuario registrado!",
-              text: "Te has registrado magistralmente",
-              icon: "success",
+              title: "Error",
+              text: error.response.data.message,
+              icon: "error",
               confirmButtonText: "Ok",
             });
-          })
-          .catch(function(error) {
-            // Si el error es que ya existe un usuario con ese email
-            if (error.response.status === 409) {
-              // Vaciamos los campos para corrección
-              self.emptyFields();
-
-              // Mostramos modal con el error
-              Swal.fire({
-                title: "Error",
-                text: error.response.data.message,
-                icon: "error",
-                confirmButtonText: "Ok",
-              });
-            } else {
-              // Si es cualquier otro error lo muestra por consola
-              console.log(error);
-            }
-          });
+          } else {
+            // Si es cualquier otro error lo muestra por consola
+            console.log(error.response.data.message);
+          }
+        }
       }
     },
-    emptyFields() {
-      this.email = "";
-      this.password = "";
-      this.repeatPaswword = "";
-    },
+  },
+  emptyFields() {
+    this.email = "";
+    this.password = "";
+    this.repeatPaswword = "";
   },
 };
 </script>

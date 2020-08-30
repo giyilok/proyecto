@@ -1,8 +1,10 @@
 -- Proyecto: Cuidadores compartidos (meucare)
+
 drop database if exists meucare;
 create database meucare CHARACTER SET UTF8MB4 COLLATE UTF8MB4_general_ci;
 use meucare;
 
+-- Tabla de ciudades donde residen los usuarios y donde se realizan las ofertas
 drop table if exists city;
 CREATE TABLE city (
     city_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -28,11 +30,25 @@ CREATE TABLE category (
 drop table if exists availability;
 CREATE TABLE availability (
     availability_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-    av_name VARCHAR(50) NOT NULL,
+    av_name VARCHAR(255) NOT NULL,
+    av_description VARCHAR(255) DEFAULT '',
     statusx TINYINT UNSIGNED NOT NULL DEFAULT 1,
     create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );
+
+-- Tabla de features
+-- Artributo statusx = atributo de estado de cada horario: 0 - desactivado, 1 - activo
+drop table if exists feature;
+CREATE TABLE feature (
+	feature_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    feature_name VARCHAR(255) NOT NULL,
+    feature_description VARCHAR(255) DEFAULT '',
+    statusx TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 
 -- Tabla de usuarios ya sean clientes o proveedores
 -- Atributo statusx = estado del usuario: 0- baja, 1 - activo, 2 - bloqueado 
@@ -44,7 +60,7 @@ CREATE TABLE user (
     last_name VARCHAR(50) ,
     birth_date DATE ,
     gender ENUM('Female', 'Male'),
-    city_id INT UNSIGNED,
+    city_name VARCHAR(50),
     email VARCHAR(255) NOT NULL,
     pass VARCHAR(255) NOT NULL,
     lastPasswordUpdate DATE,
@@ -54,10 +70,10 @@ CREATE TABLE user (
     phone VARCHAR(15) ,
     registration_code varchar(50),
     create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT FK_user_city FOREIGN KEY (city_id)
-        REFERENCES city (city_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    -- CONSTRAINT FK_user_city FOREIGN KEY (city_name)
+       --  REFERENCES city (city_name)
+        --  ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 --  Tabla de proveedores con los atributos específicos de esta entidad
@@ -88,7 +104,7 @@ drop table if exists offer;
 CREATE TABLE offer (
     offer_id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     provider_id INT UNSIGNED NOT NULL,
-    city_id INT UNSIGNED NOT NULL,
+    city_name VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     icon VARCHAR(255) NOT NULL DEFAULT '',
@@ -101,10 +117,10 @@ CREATE TABLE offer (
     last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT FK_offer_provider FOREIGN KEY (provider_id)
         REFERENCES provider (user_id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT FK_offer_city FOREIGN KEY (city_id)
-        REFERENCES city (city_id)
         ON DELETE RESTRICT ON UPDATE CASCADE
+    -- CONSTRAINT FK_offer_city FOREIGN KEY (city_name)
+       --  REFERENCES city (city_name)
+        -- ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- Tabla de valoraciones y comentarios sobre los proveedores
@@ -176,6 +192,22 @@ CREATE TABLE offer_availability (
         ON DELETE RESTRICT ON UPDATE CASCADE
 );
  
+ -- Tabla relaciones entre ofertas y features
+ drop table if exists offer_feature;
+CREATE TABLE offer_feature (
+    offer_id INT UNSIGNED NOT NULL,
+    feature_id INT UNSIGNED NOT NULL,
+    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modify TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (offer_id , feature_id),
+    CONSTRAINT FK_offer_feature_offer FOREIGN KEY (offer_id)
+        REFERENCES offer (offer_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT FK_offer_feature_feature FOREIGN KEY (feature_id)
+        REFERENCES feature (feature_id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+);
+ 
  -- Tabla de configuracion de la aplicacion para futuros usos
  -- Atributo config_name = Nombre de la variable de configuracion
  -- Atributo config_type = Tipo de variable: 1 - Numero, 2 - Texto, 3 - Buleano (0 o 1)
@@ -190,40 +222,66 @@ CREATE TABLE config (
 
 -- INSERTS 
 
--- Ciudades (10)
-INSERT INTO city(city_name) VALUES ("A Coruña"),("Cambre"),("Culleredo"),("Ferrol"),("Pontedeume"),("Narón"),("Ares"),("Miño"),("Santiago"),("Sada");
+-- Ciudades (15)
+INSERT INTO city(city_name) VALUES ("A Coruña"),("Arteixo"),("Cambre"),("Culleredo"),("Ferrol"),("Pontedeume"),("Narón"),("Ares"),("Miño"),("Santiago"),("Sada"),("Lugo"),("Ourense"), ("Pontevedra"), ("Vigo");
 
--- Categorias (10)
-INSERT INTO category(category_name)
-VALUES('Limpieza del hogar'),('Compañía'),('Compras y aprovisionamientos'),('Acompañamiento médico'),('Control de medicación'),('Cuidado e higiene personal'),('Rehabilitación'),('Enfermería'),('Servicio de cocina');
+-- Categorias
+INSERT INTO category(category_name, category_description)
+VALUES('Limpieza del hogar', 'Orden y limpieza general de la vivienda'),
+('Compañía','Servicio de acompañamiento en el hogar. Actividades de entretenimiento'),
+('Compras y aprovisionamientos','Realización de las compras habituales: alimentación, suministros, electricidad,...'),
+('Acompañamiento médico','Servicio de acompañamiento a consultas y revisiones médicas. Creación de partes de las visitas para los familiares'),
+("Recados",'Recados varios: trámites administrativos, pagos, traslado de mercancías'),
+('Control de medicación', 'Dispensación de medicación y control horario'),
+('Higiene personal','Aseo y cuidados personales. Vestir y preparar'),
+('Rehabilitación','Servicios de rehabilitación en domicilio. Actividades de mantenimiento físico'),
+('Enfermería','Pequeñas curas, sondas, vendajes...'),
+('Servicio de cocina',"Servicio de cocina en domicilio del paciente. Alimentación sana. Preparación de dietas específicas"),
+('Ayuda para comer', 'Servicio de ayuda para comer'),
+('Hacer colada y planchar','Lavar, secar y planchar ropa'),
+('Paseo y actividades recreativas','Salidas y realización de actividades de entretenimiento'),
+('Estimulación cognitiva','Realización de actividades para la estimulación cognitiva. Talleres de memoria');
+
+-- Features del servicio
+insert into feature(feature_name, feature_description) values ('Transporte adaptado','Disponibilidad de vehículo para transporte adaptado'),
+('Primeros auxilios','Conocimientos de primeros auxilios. Disponibilidad de material'),
+('Silla de ruedas','Disponibilidad de silla de ruedas'),
+('Titulación universitaria','Acreditación universitaria'),
+('Certificación profesional','Certificación profesional de profesión relacionada'),
+('Disponibilidad de efectivo','El profesional siempre dispone de efectivo para pagar pequeñas compras, medicamentos, urgencias, bebidas...'),
+('Utiles limpieza','Se dispone de herramientas profesionales para relizar las tareas de limpieza y desinfección');
+
 
 -- Horarios (3)
-insert into availability(av_name) values('Mañana'),('Tarde'),('Noche');
+insert into availability(av_name) values('Todo el día'),('Mañana (08:00 - 12:00)'),('Mediodía (12:00 - 15:00)'),('Tarde (15:00 - 18:00)'),('Media tarde (18:00 - 21:00)'),('Noche (21:00 - 00:00)'),('Madrugada (00:00 - 08:00)');
 
 -- Usuarios (10)
- INSERT INTO user (`user_name`,`last_name`,`birth_date`,`gender`,`city_id`,`email`,`pass`,`statusx`,`role`,`image`,`phone`) VALUES ("Lamar","Pacheco","2019-06-08","Female",4,"Nunc@etarcuimperdiet.com","nibh",1,1,"aliquam,","01 42 78 81 96"),("Rashad","Cannon","2019-11-14","Female",6,"non.magna@Phasellusin.com","consectetuer,",1,1,"urna","09 35 26 01 80"),("Brianna","Brown","2020-03-28","Male",10,"commodo@scelerisquescelerisquedui.ca","facilisi.",1,1,"sem","08 63 28 07 87"),("Hayley","Cote","2019-11-23","Female",7,"fringilla.porttitor@leoin.net","convallis",1,1,"Vestibulum","09 83 54 78 46"),("Aidan","Blackwell","2019-10-07","Female",8,"laoreet.ipsum.Curabitur@ipsum.edu","Quisque",1,1,"vehicula","07 87 42 75 48"),("Stuart","Hahn","2019-12-14","Male",5,"Nam.tempor@tempor.co.uk","Nunc",1,1,"nec,","05 12 83 43 37"),("Dillon","Head","2019-06-22","Male",4,"volutpat@sedhendrerita.co.uk","Nulla",1,1,"nulla.","06 27 50 94 53"),("Jennifer","Hatfield","2020-04-01","Female",10,"amet.nulla@sedpede.org","dictum",1,2,"dolor","02 50 85 80 86"),("Teegan","Petty","2019-10-06","Female",1,"orci.consectetuer.euismod@utsem.ca","ullamcorper.",1,2,"In","09 84 69 75 74"),("Yeo","French","2020-12-29","Female",7,"tempus.non.lacinia@lobortisrisusIn.com","Donec",1,2,"ligula.","02 76 83 69 77");
+ INSERT INTO user (`user_name`,`last_name`,`birth_date`,`gender`,`city_name`,`email`,`pass`,`statusx`,`role`,`image`,`phone`) VALUES ("Lamar","Pacheco","2019-06-08","Female", "A Coruña","Nunc@etarcuimperdiet.com","nibh",1,1,"aliquam,","01 42 78 81 96"),("Rashad","Cannon","2019-11-14","Female", "Cambre","non.magna@Phasellusin.com","consectetuer,",1,1,"urna","09 35 26 01 80"),("Brianna","Brown","2020-03-28","Male","Ferrol","commodo@scelerisquescelerisquedui.ca","facilisi.",1,1,"sem","08 63 28 07 87"),("Hayley","Cote","2019-11-23","Female", "Ferrol","fringilla.porttitor@leoin.net","convallis",1,1,"Vestibulum","09 83 54 78 46"),("Aidan","Blackwell","2019-10-07","Female","Culleredo","laoreet.ipsum.Curabitur@ipsum.edu","Quisque",1,1,"vehicula","07 87 42 75 48"),("Stuart","Hahn","2019-12-14","Male","Ferrol","Nam.tempor@tempor.co.uk","Nunc",1,1,"nec,","05 12 83 43 37"),("Dillon","Head","2019-06-22","Male","A Coruña","volutpat@sedhendrerita.co.uk","Nulla",1,1,"nulla.","06 27 50 94 53"),("Jennifer","Hatfield","2020-04-01","Female","Ares","amet.nulla@sedpede.org","",1,2,"defaultAvatar.png","02 50 85 80 86"),("Teegan","Petty","2019-10-06","Female","Cambre","orci.consectetuer.euismod@utsem.ca","",1,2,"defaultAvatar.png","09 84 69 75 74"),("Yeo","French","2020-12-29","Female","A Coruña","tempus.non.lacinia@lobortisrisusIn.com","",1,2,"defaultAvatar.png","02 76 83 69 77");
 
 -- Usuario admin(1)
--- INSERT INTO user (`user_name`,`last_name`,`birth_date`,`gender`,`city_id`,`email`,`pass`,`statusx`,`role`,`image`,`phone`) VALUES ("Giyi", "Lok", "1976-06-29", "Male", 3, "giyilok@gmail.com", "giyilok", 1, 3, "avatar.jpg", "638384335");
+-- INSERT INTO user (`user_name`,`last_name`,`birth_date`,`gender`,`city_name`,`email`,`pass`,`statusx`,`role`,`image`,`phone`) VALUES ("Giyi", "Lok", "1976-06-29", "Male", "Ferrol", "giyilok@gmail.com", "giyilok", 1, 3, "avatar.jpg", "638384335");
 
 -- Proveedores (3)
-insert into provider(user_id, init_work_at, biography, speciality) values(8,"2005","Enfermero durante 3 años en el CHUAC, en cirujía general","Enfermería"), (9,"1995","Persona ordenada y meticulosa. Hijo de farmaceúticos. Prácticas en farmacia.","Farmacia"),(10,"2010","Sin comentarios","Puericultura");
+insert into provider(user_id, xp_years, init_work_at, biography, speciality) values(8, 15, "2005","Enfermero durante 3 años en el CHUAC, en cirujía general","Enfermería"), (9, 25, "1995","Persona ordenada y meticulosa. Hijo de farmaceúticos. Prácticas en farmacia.","Farmacia"),(10, 10,"2010","Sin comentarios","Puericultura");
 
  -- Ofertas (3)
- insert into offer(provider_id, city_id, title, description, icon, statusx, customer_min, customer_max, price, price_type) 
-values 	(8, 1, "Cuidados enfermería", "Curas y cuidados de enfermería. Seguimiento y acompañamiento de citas médicas", "xxxxxxxxxxxx", 1, 3, 5, 100, "mes"),
-		(9, 4, "Compañía y estimulación cognitiva", "Servicio de acompañamiento de la persona dependiente. Ejercicios de memoria", "xxxxxxxxx", 1, 2, 3, 50, "mes"),
-        (10, 7, "Compras y asistencia","Abastecimientos del hogar. Servicio de cocina","yyyyyyyyyyyyyyy", 1, 1, 2, 150, "mes"),
-        (8, 1, "Servicio de transporte", "Recogemos y llevamos a nuestros clientes desde un punto a otro", "ddddddddddddd", 1, 3, 4, 15, "semana");
+ insert into offer(provider_id, city_name, title, description, icon, statusx, customer_min, customer_max, price, price_type) 
+values 	(8, "A Coruña", "Cuidados enfermería", "Curas y cuidados de enfermería. Seguimiento y acompañamiento de citas médicas", "xxxxxxxxxxxx", 1, 3, 5, 100, "mes"),
+		(9, "A Coruña", "Compañía y estimulación cognitiva", "Servicio de acompañamiento de la persona dependiente. Ejercicios de memoria", "xxxxxxxxx", 1, 2, 3, 50, "mes"),
+        (10, "A Coruña", "Compras y asistencia","Abastecimientos del hogar. Servicio de cocina","yyyyyyyyyyyyyyy", 1, 1, 2, 150, "mes"),
+        (8, "Ferrol", "Servicio de transporte", "Recogemos y llevamos a nuestros clientes desde un punto a otro", "ddddddddddddd", 1, 3, 4, 15, "semana");
 
 -- Ratings (2)
 insert into rating(user_id, provider_id, score, review) values(1,8,4,"Gran profesional"), (2,8,5,"Atento y amable");
 
 -- Reservas (8)
-insert into booking(offer_id, user_id, statusx) values (1, 1, 1), (1, 2, 1), (1, 2, 1), (2, 1, 1), (2, 3, 1), (3, 4, 1), (3, 5, 1), (3, 6, 1);
+-- insert into booking(offer_id, user_id, statusx) values (1, 1, 1), (1, 2, 1), (1, 2, 1), (2, 1, 1), (2, 3, 1), (3, 4, 1), (3, 5, 1), (3, 6, 1);
 
 -- Categorías de cada oferta (5)
 insert into offer_category(offer_id, category_id) values(1, 8), (1, 4), (2, 2), (3, 3), (3, 9);
 
 -- Horario de cada oferta (3)
-insert into offer_availability(offer_id, availability_id) values(1, 1), (2, 2), (3, 1)
+insert into offer_availability(offer_id, availability_id) values(1, 1), (2, 2), (3, 1);
+
+-- Configuracion de la aplicacion
+ insert into config(config_name, config_type, config_value) values("Permitir borrar ofertas", 3, 0)

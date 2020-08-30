@@ -7,7 +7,8 @@
       <router-link :to="{ name: 'Register' }">Registro</router-link>
       <router-link :to="{ name: 'Offers' }">Offers</router-link>
       <router-link :to="{ name: 'About' }">About</router-link>
-      <router-link :to="{ name: 'ProviderRegister' }">Registro Proveedor</router-link>
+      <router-link :to="{ name: 'ProviderRegister' }">Registro_Proveedor</router-link>
+      <router-link :to="{ name: 'NewOfferView' }">Nueva_oferta</router-link>
     </div>
 
     <div class="info" v-if="loged">
@@ -24,7 +25,7 @@ import {
   clearLogin,
   getUserName,
   isLoggedIn,
-  checkAdmin
+  checkAdmin,
 } from "../utils/utils";
 
 export default {
@@ -33,14 +34,14 @@ export default {
     return {
       name: "",
       visible: false,
-      loged: false
+      loged: false,
     };
   },
   methods: {
     logoutUser() {
       this.$router.push("/");
       return clearLogin();
-    }
+    },
   },
   created() {
     if (isLoggedIn()) {
@@ -54,7 +55,7 @@ export default {
     /* if (checkAdmin()) {
       this.visible = true;
     } */
-  }
+  },
 };
 </script>
 

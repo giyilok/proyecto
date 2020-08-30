@@ -35,13 +35,14 @@
       </select>
 
       <!-- Test -->
-      <input type="date" class="form-control" />
+      <!-- <input type="date" class="form-control" />
       <input type="date" />
       <input
         type="checkbox"
         v-bind:checked="checked"
         v-on:change="$emit('change', $event.target.checked)"
       />
+      -->
       <!-- Test -->
 
       <!--  Formulario de búsqueda  -->
@@ -49,12 +50,17 @@
       <div class="container">
         <!--  Listado de ofertas  -->
         <ul class="offercard">
-          <offercard v-for="offer in offers" :key="offer.id" :offer="offer" />
+          <offercard
+            v-for="offer in offers"
+            :key="offer.offer_id"
+            :offer="offer"
+            v-on:redirect="redirect"
+          />
         </ul>
         <!--  Listado de ofertas  -->
 
         <!--  Menú de usuario  -->
-        <aside>
+        <aside v-show="menuVisible">
           <menuuser :user="user" />
         </aside>
         <!--  Menú de usuario  -->
@@ -78,6 +84,7 @@ import footerapp from "../components/FooterApp";
 import offercard from "../components/OfferCardList";
 import menuuser from "../components/MenuUser";
 import { isLoggedIn, getUserId } from "../utils/utils";
+import { URL } from "../config.js";
 
 export default {
   name: "Offers",
@@ -87,40 +94,38 @@ export default {
       offers: [],
       selected: 1,
       user: {},
-      menuVisible: false
+      menuVisible: false,
     };
   },
   components: {
     menuapp,
     footerapp,
     offercard,
-    menuuser
+    menuuser,
   },
   methods: {
     async getOffers() {
       try {
-        var self = this;
         const response = await axios.get(
-          `http://localhost:3001/offer/getoffers?sort=${this.selected}`
+          `${URL}/offer/getoffers?sort=${this.selected}`
         );
-
-        return (self.offers = response.data.results);
+        return (this.offers = response.data.results);
       } catch (error) {
         if (error.response.status === 404) {
           alert(error.response.data.message);
         } else {
+          console.log("Ocurrio un error");
           console.log(error);
         }
       }
     },
     async searchOffers() {
       try {
-        var self = this;
         const response = await axios.get(
-          `http://localhost:3001/offer/search?userName=${this.search}&lastName=${this.search}&city=${this.search}&category=${this.search}&availability=${this.search}&sort=${this.selected}`
+          `${URL}/offer/search?userName=${this.search}&lastName=${this.search}&city=${this.search}&category=${this.search}&availability=${this.search}&sort=${this.selected}`
         );
 
-        self.offers = response.data.data;
+        this.offers = response.data.data;
       } catch (error) {
         if (error.response.status === 404) {
           alert(error.response.data.message);
@@ -141,17 +146,22 @@ export default {
     // para pasárselos al componente menú de usuario
     async getUser() {
       const userId = getUserId();
-      console.log(userId);
+
       try {
-        var self = this;
+        const result = await axios.get(`${URL}/user/${userId}`);
 
-        const result = await axios.get(`http://localhost:3001/user/${userId}`);
-
-        self.user = result.data.data;
+        this.user = result.data.data;
       } catch (error) {
         console.log(error);
       }
-    }
+    },
+    // Redirecciona a la vista de la oferta donde se hace click
+    redirect(offerId) {
+      this.$router.push({
+        name: "OfferView",
+        params: { id: offerId },
+      });
+    },
   },
   // Al crearse el componente se cargan las ofertas disponibles
   // y el menú de usuario si está logueado
@@ -159,9 +169,10 @@ export default {
     this.getOffers();
 
     if (isLoggedIn()) {
+      this.menuVisible = true;
       this.getUser();
     }
-  }
+  },
 };
 </script>
 
@@ -196,8 +207,5 @@ form input {
 .offercard {
   display: flex;
   flex-direction: column;
-}
-
-select {
 }
 </style>

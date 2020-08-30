@@ -1,8 +1,6 @@
 <template>
   <div>
-    <p>
-      Designed by Giyi in A Coruña, 2020
-    </p>
+    <p>Designed by Giyi in A Coruña, 2020</p>
   </div>
 </template>
 
@@ -15,7 +13,6 @@ export default {
 <style scoped>
 p {
   font-size: 1rem;
-  margin: 3rem auto 1rem;
 }
 
 span {

@@ -1,38 +1,49 @@
 <template>
-  <div>
-    <div class="menu-user">
-      <img :src="user.image" />
-      <p>{{ user.user_name }}</p>
-      <!--       <p>{{ user.email }}</p>
- -->
-      <p>
-        <a href="#"
-          ><i class="fas fa-list-ul fa-lg"></i>
+  <div v-if="loadAvatar" class="menu-user">
+    <img :src="getRuta()" alt="Avatar de usuario" />
 
-          Mis ofertas</a
-        >
-      </p>
-      <p>
-        <a href="#"
-          ><i class="far fa-bookmark fa-lg"></i>
-
-          Mis reservas</a
-        >
-      </p>
-      <p>
-        <a href="#"><i class="fas fa-user-md fa-lg"></i>Mis cuidadores</a>
-      </p>
-      <p><i class="fas fa-user-circle fa-lg"></i><a href="#">Mi Perfil</a></p>
-      <button>Logout</button>
-    </div>
+    <p>{{ user.user_name }}</p>
+    <p>
+      <a href="#">Mis ofertas</a>
+    </p>
+    <p>
+      <a href="#">Mis reservas</a>
+    </p>
+    <p>
+      <a href="#">Mis cuidadores</a>
+    </p>
+    <p>
+      <a href="#">Mi Perfil</a>
+    </p>
+    <button>Logout</button>
   </div>
 </template>
 
 <script>
+import { URL } from "../config";
+
 export default {
   name: "MenuUser",
+  data() {
+    return {
+      avatar: "",
+      ruta: null,
+    };
+  },
   props: {
     user: Object,
+  },
+  computed: {
+    loadAvatar() {
+      return this.ruta != null;
+    },
+  },
+  methods: {
+    getRuta() {
+      this.ruta = `${URL}/uploads/` + this.user.image;
+
+      return this.ruta;
+    },
   },
 };
 </script>
@@ -61,10 +72,10 @@ export default {
   margin-left: 5rem;
 }
 
-img {
+/* img {
   margin: 0 auto;
   border-radius: 8px;
-}
+} */
 
 button {
   width: 70px;
@@ -86,6 +97,14 @@ a {
 i {
   margin-right: 1rem;
 }
+
+img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
 /* .menu-options {
   flex-grow: 1;
   display: flex;

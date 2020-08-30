@@ -21,7 +21,6 @@ const UserModel = {
     // Devolvemos la respuesta
     connection.release();
 
-    console.log(payload);
     return payload;
   },
   // Obtener usuario por mail
@@ -36,14 +35,14 @@ const UserModel = {
     return existingUser;
   },
   // Registra un nuevo usuario
-  newUser: async function (email, password, registrationCode) {
+  newUser: async function (email, password, registrationCode, role) {
     const connection = await getConnection();
 
     // Preparamos la query
     const sqlQuery =
-      'INSERT INTO user SET email = ?, pass = ?, registration_Code = ? ';
+      'INSERT INTO user SET email = ?, pass = ?, registration_code = ?, role = ? ';
     // Insertamos los datos
-    await connection.query(sqlQuery, [email, password, registrationCode]);
+    await connection.query(sqlQuery, [email, password, registrationCode, role]);
 
     connection.release();
   },

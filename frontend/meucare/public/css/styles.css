@@ -1,0 +1,61 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: content-box;
+  list-style: none;
+}
+
+/* Variables CSS */
+:root {
+  --my-color1: #238be6;
+  --my-color2: #1964ab;
+  --my-color3: #e7f0fe;
+  --my-color4: #495157;
+  --my-bgcolor: #f8f9fa;
+}
+
+/* Botones de la aplicacion */
+.button-primary {
+  width: 150px;
+  height: 50px;
+  border-radius: 20px;
+  border: 0.7px solid var(--my-color2);
+  background: var(--my-color2);
+  color: var(--my-color3);
+  font-size: 20px;
+  font-weight: bolder;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+}
+
+.button-primary:hover {
+  transform: scale(1.1);
+}
+
+.button-primary:active {
+  transform: translateY(-6px);
+}
+
+.button-secondary {
+  background-color: white;
+  width: 150px;
+  height: 50px;
+  border-radius: 20px;
+  border-color: var(--my-color2);
+  border-width: 0.7px;
+  color: var(--my-color2);
+  font-size: 20px;
+  font-weight: bolder;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+}
+
+.button-secondary:hover {
+  transform: scale(1.1);
+}
+
+.button-secondary:active {
+  transform: translateY(-6px);
+}

@@ -15,10 +15,9 @@ async function getRandomOffer(req, res, next) {
     connection = await getConnection();
 
     // TODO Ver necesidades de más campos en esta consulta
-    const sqlQuery = `SELECT DISTINCT o.*, p.*, u.*, c.city_name FROM offer o
+    const sqlQuery = `SELECT DISTINCT * FROM offer o
           JOIN provider p ON o.provider_id = p.user_id
           JOIN user u ON u.user_id = p.user_id
-          JOIN city c ON c.city_id = o.city_id
           WHERE o.statusx = 1  
           ORDER BY RAND() LIMIT ?`;
 

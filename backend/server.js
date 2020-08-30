@@ -19,6 +19,7 @@ const cityRoutes = require('./routes/cityRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const availabilityRoutes = require('./routes/availabilityRoutes');
+const featureRoutes = require('./routes/featureRoutes');
 
 //Configuraciones
 const port = process.env.PORT;
@@ -43,6 +44,7 @@ app.use('/city', cityRoutes);
 app.use('/rating', ratingRoutes);
 app.use('/category', categoryRoutes);
 app.use('/availability', availabilityRoutes);
+app.use('/feature', featureRoutes);
 
 // Middleware de error
 app.use((error, req, res, next) => {

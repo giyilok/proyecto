@@ -4,7 +4,8 @@ const { getConnection } = require('../../dbsql');
 
 const { generateError } = require('../../util/helpers');
 
-// Devuelve los datos de un usuario especificado por id
+// Devuelve los datos de un proveedor especificado por id
+// (incluidos los de la tabla user)
 // Ruta /provider/:id  Method:GET
 async function getProvider(req, res, next) {
   let connection;
@@ -16,9 +17,10 @@ async function getProvider(req, res, next) {
 
     const [
       result
-    ] = await connection.query(`select * from provider where user_id = ?`, [
-      id
-    ]);
+    ] = await connection.query(
+      `SELECT * FROM provider JOIN user ON provider.user_id = user.user_id WHERE provider.user_id = ?`,
+      [id]
+    );
 
     // Comprobamos si existe el usuario en la db
     if (!result.length) {

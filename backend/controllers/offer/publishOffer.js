@@ -26,6 +26,7 @@ async function setOfferStatus(req, res, next) {
       throw generateError('La oferta no existe', 404);
     }
 
+    console.log('STOP', result.affectedRows);
     res.status(200).send({
       status: 'ok',
       message: `Actualizado con éxito el estado de la oferta a ${statusx}`,

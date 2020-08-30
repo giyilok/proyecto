@@ -31,8 +31,8 @@ export default {
   name: "CustomerRegister",
   components: {
     menuapp,
-    footerapp
-  }
+    footerapp,
+  },
 };
 </script>
 

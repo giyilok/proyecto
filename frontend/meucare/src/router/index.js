@@ -78,6 +78,33 @@ const routes = [
     }, */
   },
   {
+    path: "/customerReg",
+    name: "CustomerRegister",
+    component: () => import("../views/CustomerRegisterView.vue"),
+    /* meta: {
+      // Ruta pública
+      allowAnonymous: true,
+    }, */
+  },
+  {
+    path: "/newOffer",
+    name: "NewOfferView",
+    component: () => import("../views/NewOfferView.vue"),
+    /* meta: {
+      // Ruta pública
+      allowAnonymous: true,
+    }, */
+  },
+  {
+    path: "/offer/:id",
+    name: "OfferView",
+    component: () => import("../views/OfferView.vue"),
+    /* meta: {
+      // Ruta pública
+      allowAnonymous: true,
+    }, */
+  },
+  {
     path: "*",
     name: "ErrorNotFound",
     component: () => import("../views/ErrorNotFound.vue"),
