@@ -14,25 +14,28 @@ async function editOffer(req, res, next) {
   try {
     // Validamos los datos de entrada
     const {
-      city_id,
+      city_name,
       title,
       description,
       customer_min,
+      customer_max,
       price,
       price_type,
-      ...categories
+      categories,
+      availabilities,
+      features
     } = req.body;
 
     //const { id } = req.auth;
 
     await offerSchema.validateAsync({
-      city_id,
+      city_name,
       title,
       description,
       customer_min,
+      customer_max,
       price,
-      price_type,
-      categories
+      price_type
     });
 
     // Insertamos en la offer los datos validados
@@ -45,26 +48,15 @@ async function editOffer(req, res, next) {
     // Activada (2) o archivada (3) No se puede pueden modificar
     const { statusx, offersCount } = req.claims;
 
-    if (statusx === 0) {
+    if (statusx === 0 || (statusx === 1 && offersCount === 0)) {
       const sqlQuery = 'UPDATE offer SET ? WHERE offer_id = ?';
       await connection.query(sqlQuery, [
         {
-          city_id,
+          city_name,
           title,
           description,
           customer_min,
-          price,
-          price_type
-        },
-        offerId
-      ]);
-    } else if (statusx === 1 && offersCount === 0) {
-      const sqlQuery = 'UPDATE offer SET ? WHERE offer_id = ?';
-      await connection.query(sqlQuery, [
-        {
-          title,
-          description,
-          customer_min,
+          customer_max,
           price,
           price_type
         },
@@ -82,10 +74,35 @@ async function editOffer(req, res, next) {
       offerId
     ]);
 
-    for (const category of categories.category) {
+    for (const category of categories) {
       connection.query(
         'INSERT INTO offer_category (offer_id, category_id) VAlUES (?, ?)',
-        [offerId, category]
+        [offerId, category.category_id]
+      );
+    }
+
+    // Borramos los horarios antiguos y grabamos las actualizados
+    await connection.query(
+      'DELETE FROM offer_availability WHERE offer_id = ?',
+      [offerId]
+    );
+
+    for (const availability of availabilities) {
+      connection.query(
+        'INSERT INTO offer_availability (offer_id, availability_id) VAlUES (?, ?)',
+        [offerId, availability.availability_id]
+      );
+    }
+
+    // Borramos las features antiguas y grabamos las actualizadas
+    await connection.query('DELETE FROM offer_feature WHERE offer_id = ?', [
+      offerId
+    ]);
+
+    for (const feature of features) {
+      connection.query(
+        'INSERT INTO offer_feature (offer_id, feature_id) VAlUES (?, ?)',
+        [offerId, feature.feature_id]
       );
     }
 

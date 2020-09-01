@@ -14,7 +14,8 @@
 
     <!--  Contenido de la vista  -->
     <main>
-      <h1>Crear oferta de servicios</h1>
+      <h1 v-if="modeIsCreate">Crea una nueva oferta de servicios en 3 minutos</h1>
+      <h1 v-else>Edita tu oferta en solo 2.5 minutos</h1>
       <form>
         <div class="input-container">
           <div class="offer-text">
@@ -109,16 +110,37 @@
               </ul>
             </div>
 
-            <label for="availability">Disponibilidad horaria</label>
-            <select name="availability" id="availability" v-model="selectedAvailability">
-              <option selected>Escoje el horario del servicio</option>
-              <option
-                v-for="availability in availabilities"
-                :key="availability.availability_id"
-                :value="availability.availability_id"
-                required
-              >{{ availability.av_name }}</option>
-            </select>
+            <label for="availability">Indica los horarios disponibles</label>
+            <div class="select-ctn">
+              <select name="availavility" id="availability" v-model="selectedAvailability">
+                <option disabled value>Escoje un horario para el servicio</option>
+                <option
+                  v-for="availability in availabilities"
+                  :key="availability.availability_id"
+                  :value="availability"
+                  required
+                >{{ availability.av_name }}</option>
+              </select>
+              <button @click.prevent="addAvailability">Añadir</button>
+            </div>
+
+            <p
+              class="error-select"
+              v-show="emptySelectAvailability"
+            >Debes seleccionar alguna opción para añadir</p>
+
+            <p class="error-select" v-show="repeatedSelectAvailability">Ya existe esta opción</p>
+
+            <div class="availabilities">
+              <ul>
+                <li v-for="(availability, index) in availabilitiesList" :key="availability.id">
+                  {{ availability.av_name }}
+                  <button
+                    @click.prevent="deleteAvailability(index)"
+                  >Eliminar</button>
+                </li>
+              </ul>
+            </div>
 
             <p>Número máximo y mínimo de usuarios para que la oferta se active</p>
             <div class="users-min-max">
@@ -150,8 +172,9 @@
         </div>
 
         <section class="buttons">
-          <button class="button-secondary">Volver</button>
-          <button class="button-primary" @click.prevent="saveOffer()">Guardar</button>
+          <button class="button-secondary" @click.prevent="goBack">Volver</button>
+          <button v-if="modeIsCreate" class="button-primary" @click.prevent="saveOffer()">Guardar</button>
+          <button v-else class="button-primary" @click.prevent="editOffer()">Modificar</button>
         </section>
       </form>
     </main>
@@ -170,6 +193,7 @@ import Swal from "sweetalert2";
 import menuapp from "../components/MenuApp";
 import footerapp from "../components/FooterApp";
 import { URL } from "../config";
+import api from "@/api/api";
 
 export default {
   name: "NewOfferView",
@@ -188,8 +212,9 @@ export default {
       categoriesList: [],
       selectedAvailability: "",
       availabilities: [],
-      usersMin: 2,
-      usersMax: 2,
+      availabilitiesList: [],
+      usersMin: 0,
+      usersMax: 0,
       selectedFeature: null,
       features: [],
       featuresList: [],
@@ -197,15 +222,70 @@ export default {
       repeatedSelect: false,
       emptySelectCategory: false,
       repeatedSelectCategory: false,
+      emptySelectAvailability: false,
+      repeatedSelectAvailability: false,
       price: 0,
-      period: "null",
+      period: null,
+      mode: "create",
+      offerId: null,
     };
   },
+  computed: {
+    modeIsCreate() {
+      if (this.mode === "create") {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  },
   methods: {
+    // En modo edición obtiene los datos de la oferta y
+    // los muestra para su edición
+    async getDataOffer() {
+      const offerInfo = await this.getOfferInfo();
+      const items = await this.getItems();
+
+      this.title = offerInfo.title;
+      this.description = offerInfo.description;
+      this.selectedCity = offerInfo.city_name;
+      this.usersMin = offerInfo.customer_min;
+      this.usersMax = offerInfo.customer_max;
+      this.price = offerInfo.price;
+      this.period = offerInfo.price_type;
+
+      this.categoriesList = items.categories;
+      this.availabilitiesList = items.availabilities;
+      this.featuresList = items.features;
+      /* if (items.features) {
+        this.featuresList = items.features;
+      } else {
+        this.featuresList = []; */
+    },
+
+    async getOfferInfo() {
+      try {
+        // Obtenemos los datos de la oferta con el id especificado
+        const response = await api.getOffer(this.offerId);
+        console.log("Datos de la oferta", response);
+        return response;
+      } catch (error) {
+        console.log(error.response.data.message);
+      }
+    },
+    async getItems() {
+      try {
+        const response = await api.getOfferItems(this.offerId);
+        console.log("Los Items", response);
+        return response;
+      } catch (error) {
+        console.log(error.response.data.message);
+      }
+    },
     async getCategories() {
       try {
         const results = await axios.get(`${URL}/category`);
-        this.categories = results.data.data;
+        return (this.categories = results.data.data);
       } catch (error) {
         console.log(error);
       }
@@ -234,6 +314,7 @@ export default {
         console.log(error);
       }
     },
+
     addFeature() {
       this.emptySelect = false;
 
@@ -262,6 +343,20 @@ export default {
         this.categoriesList.unshift(this.selectedCategory);
       }
     },
+    addAvailability() {
+      this.emptySelectAvailability = false;
+
+      if (!this.selectedAvailability) {
+        return (this.emptySelectAvailability = true);
+      }
+
+      if (this.availabilitiesList.includes(this.selectedAvailability)) {
+        this.repeatedSelectAvailability = true;
+      } else {
+        this.repeatedSelectAvailability = false;
+        this.availabilitiesList.unshift(this.selectedAvailability);
+      }
+    },
     deleteFeature(index) {
       this.featuresList.splice(index, 1);
       console.log(this.featuresList);
@@ -269,6 +364,10 @@ export default {
     deleteCategory(index) {
       this.categoriesList.splice(index, 1);
       console.log(this.categoriesList);
+    },
+    deleteAvailability(index) {
+      this.availabilitiesList.splice(index, 1);
+      console.log(this.availabilities);
     },
     // TODO Antes de hacer la petición comprobar si no hay
     // ningún campo vacío
@@ -290,7 +389,7 @@ export default {
             price: this.price,
             price_type: this.period,
             categories: this.categoriesList,
-            availability_id: this.selectedAvailability,
+            availabilities: this.availabilitiesList,
             features: this.featuresList,
           },
           {
@@ -309,7 +408,6 @@ export default {
         // Borramos los campos
         //this.emptyFields();
       } catch (error) {
-        console.log("Aquí se saca el status");
         if ((error.response.status === 409) | (error.response.status === 400)) {
           console.log(error);
 
@@ -322,16 +420,88 @@ export default {
           });
         } else {
           // Si es cualquier otro error lo muestra por consola
-          console.log(error), "Hay un error";
+          console.log(error.response, "Hay un error");
         }
       }
     },
+
+    async editOffer() {
+      const token = getAuthToken();
+      const userId = getUserId();
+      console.log("Lista de features antes de modificar", this.featuresList);
+
+      try {
+        await axios.put(
+          `http://localhost:3001/offer/${this.offerId}`,
+          {
+            city_name: this.selectedCity,
+            title: this.title,
+            description: this.description,
+            customer_min: this.usersMin,
+            customer_max: this.usersMax,
+            price: this.price,
+            price_type: this.period,
+            categories: this.categoriesList,
+            availabilities: this.availabilitiesList,
+            features: this.featuresList,
+          },
+          {
+            headers: { authorization: `Bearer ${token}` },
+          }
+        );
+
+        // Mostramos modal indicando el registro correcto de la nueva oferta
+        Swal.fire({
+          title: "Oferta modificada!",
+          text: "La oferta ha sido modificada con éxito",
+          icon: "success",
+          confirmButtonText: "Ok",
+        });
+
+        this.$router.go(-1);
+        // Borramos los campos
+        //this.emptyFields();
+      } catch (error) {
+        if ((error.response.status === 409) | (error.response.status === 400)) {
+          console.log(error);
+
+          // Mostramos modal con el error
+          Swal.fire({
+            title: "Error",
+            text: error.response.data.message,
+            icon: "error",
+            confirmButtonText: "Ok",
+          });
+        } else {
+          // Si es cualquier otro error lo muestra por consola
+          console.log(error.response.data.message, "Hay un error");
+        }
+      }
+    },
+    // Carga los datos de los selects para la oferta
+    dataLoad() {
+      this.getCategories();
+      this.getAvailabilities();
+      this.getCities();
+      this.getFeatures();
+    },
+    goBack() {
+      this.$router.go(-1);
+    },
   },
+
   created() {
-    this.getCategories();
-    this.getAvailabilities();
-    this.getCities();
-    this.getFeatures();
+    this.dataLoad();
+
+    // Si viene redireccionada de otra vista con parámetros (modo edición)
+    if (this.$route.params.mode) {
+      this.mode = this.$route.params.mode;
+      this.offerId = this.$route.params.offerId;
+
+      console.log(this.mode, this.offerId);
+      //Obtenemos los datos de la oferta para editar
+      this.getDataOffer();
+    }
   },
 };
 </script>

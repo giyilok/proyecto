@@ -145,6 +145,30 @@ export function getUserId() {
   return localStorage.getItem(ID);
 }
 
+// Función para obtener el nombre del status actual de una oferta
+export function getStatusName(status) {
+  let name = "";
+  switch (status) {
+    case 0:
+      name = "Borrador";
+      break;
+    case 1:
+      name = "Publicada";
+      break;
+    case 2:
+      name = "Activa";
+      break;
+    case 3:
+      name = "Archivada";
+      break;
+
+    default:
+      name = "Desconocido";
+  }
+
+  return name;
+}
+
 // Comprobar rol
 /* export function checkAdmin() {
   let role = false;

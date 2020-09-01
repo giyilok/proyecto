@@ -44,6 +44,9 @@
         <ul>
           <li v-for="av in availabilities" :key="av.id">{{ av.av_name }}</li>
         </ul>
+
+        <p>Estado actual de la oferta: {{statusName}}</p>
+
         <!-- Información de la oferta -->
 
         <!-- Botones -->
@@ -54,8 +57,8 @@
 
         <div v-else>
           <button v-show="buttonVisible[0]" class="button-primary" @click="archive">Archivar</button>
-          <button v-show="buttonVisible[1]" class="button-primary">Publicar</button>
-          <button v-show="buttonVisible[2]" class="button-primary" @click="editar">Editar</button>
+          <button v-show="buttonVisible[1]" class="button-primary" @click.prevent="publish">Publicar</button>
+          <button v-show="buttonVisible[2]" class="button-primary" @click="edit">Editar</button>
         </div>
       </div>
     </main>
@@ -75,7 +78,12 @@ import menuapp from "../components/MenuApp";
 import footerapp from "../components/FooterApp";
 import provider from "../components/Provider";
 import { URL } from "../config";
-import { getRole, getAuthToken, getUserId } from "../utils/utils";
+import {
+  getRole,
+  getAuthToken,
+  getUserId,
+  getStatusName,
+} from "../utils/utils";
 import api from "@/api/api";
 
 export default {
@@ -95,6 +103,7 @@ export default {
       features: [],
       booking: true,
       status: null,
+      statusName: "",
       visible: false,
       buttonVisible: [null, null, null],
       role: 0,
@@ -114,6 +123,9 @@ export default {
   },
   watch: {
     status: async function (newStatus, oldStatus) {
+      // Obtiene el nombre del estado actual cada vez que éste cambia
+      this.statusName = getStatusName(newStatus);
+
       const userId = getUserId();
       // Si es un cliente registrado
       if (this.role === "1") {
@@ -304,7 +316,7 @@ export default {
     async archive() {
       try {
         const result = await api.archiveOffer(this.offerId);
-        console.log(result);
+
         Swal.fire({
           title: "¡Oferta archivada!",
           text: `Tu reserva ha sido archivada con resultado ${result}`,
@@ -313,7 +325,30 @@ export default {
         });
 
         const results = await api.checkOfferStatus(this.offerId);
-        console.log("Los results son", results);
+        this.status = results;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    edit() {
+      this.$router.push({
+        name: "NewOfferView",
+        params: { mode: "edit", offerId: this.offerId },
+      });
+    },
+    // Cambia el estado de la oferta a publicada
+    async publish() {
+      try {
+        await api.setOfferStatus(1, this.offerId);
+
+        Swal.fire({
+          title: "¡Oferta publicada!",
+          text: `Enhorabuena!! Has publicado tu oferta con éxito`,
+          icon: "success",
+          confirmButtonText: "Ok",
+        });
+
+        const results = await api.checkOfferStatus(this.offerId);
         this.status = results;
       } catch (error) {
         console.log(error);
@@ -371,6 +406,11 @@ main button {
 .offer {
   border: 0.7px solid lightgrey;
   margin: 2rem;
+}
+
+.offer p:last-of-type {
+  font-size: 20px;
+  margin-top: 2rem;
 }
 
 .customer {

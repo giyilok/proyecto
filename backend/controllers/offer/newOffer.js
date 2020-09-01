@@ -25,7 +25,7 @@ async function newOffer(req, res, next) {
       customer_max,
       price,
       price_type,
-      availability_id,
+      availabilities,
       categories,
       features
     } = req.body;
@@ -50,7 +50,9 @@ async function newOffer(req, res, next) {
       customer_max,
       price,
       price_type,
-      features
+      features,
+      categories,
+      availabilities
     );
 
     // Insertamos en la offer los datos validados
@@ -88,10 +90,12 @@ async function newOffer(req, res, next) {
 
     // Insertar las disponibilidades horarias en la
     // en la tabla offer_availability
-    connection.query(
-      'INSERT INTO offer_availability (offer_id, availability_id) VALUES (?, ?)',
-      [offerId, availability_id]
-    );
+    for (const availability of availabilities) {
+      connection.query(
+        'INSERT INTO offer_availability (offer_id, availability_id) VALUES (?, ?)',
+        [offerId, availability.availability_id]
+      );
+    }
 
     // Si todo fue bien devolvemos el resultado
     res.send({
